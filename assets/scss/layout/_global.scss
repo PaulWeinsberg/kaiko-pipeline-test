@@ -1,0 +1,67 @@
+html {
+    font-size: var(--baseFont);
+}
+
+body {
+    background: var(--white-100);
+    font-family: var(--fontPrimary);
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    #__nuxt,
+    #__layout,
+    #app {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        width: 100%;
+    }
+    p,
+    li {
+        font-size: inherit;
+    }
+    .b- {
+        &white-100 {
+            color: var(--black-800);
+            background-color: var(--white-100);
+        }
+        &black-900 {
+            color: var(--white-100);
+            background-color: var(--black-900);
+        }
+    }
+    .c- {
+        &white-100 {
+            color: var(--white-100);
+        }
+        &black-900 {
+            color: var(--black-900);
+        }
+    }
+    b,
+    strong,
+    .bold {
+        font-weight: bold;
+    }
+    i,
+    .italic {
+        font-style: italic;
+    }
+    .invisible {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+    &.has-hover {
+        * {
+            &:focus {
+                outline: none;
+            }
+        }
+    }
+    &.no-scroll {
+        overflow: hidden;
+    }
+}
