@@ -27,7 +27,7 @@ export default {
             {
                 hid: 'twitter:site',
                 name: 'twitter:site',
-                content: 'Kaiko',
+                content: 'Outsideur',
             },
             {
                 hid: 'twitter:creator',
@@ -37,7 +37,7 @@ export default {
             {
                 hid: 'og:site_name',
                 property: 'og:site_name',
-                content: 'Kaiko',
+                content: 'Outsideur',
             },
             {
                 hid: 'og:locale',
@@ -46,6 +46,11 @@ export default {
             },
             { hid: 'og:type', property: 'og:type', content: 'website' },
             { hid: 'author', name: 'author', content: 'Spin Interactive' },
+        ],
+        script: [
+            {
+                src: 'https://js.hsforms.net/forms/v2.js',
+            },
         ],
     },
 
@@ -60,13 +65,14 @@ export default {
         axeptio: {
             clientId: process.env.AXEPTIO_CLIENT_ID,
             cookiesVersion: process.env.AXEPTIO_COOKIES_VERSION,
+            userCookiesDomain: process.env.AXEPTIO_USER_COOKIES_DOMAIN,
         },
     },
 
     // Global CSS: https://go.nuxtjs.dev/config-css
     css: [
         {
-            src: '@spin-interactive/spikotify/lib/assets/main.scss',
+            src: '@spin-interactive/spikotify/lib/assets/scss/main.scss',
             lang: 'scss',
         },
         {
@@ -77,10 +83,7 @@ export default {
     ],
 
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-    plugins: [
-        { src: '~/plugins/gtm' },
-        { src: '~/plugins/toaster' },
-    ],
+    plugins: [{ src: '~/plugins/gtm' }],
 
     // Auto import components: https://go.nuxtjs.dev/config-components
     components: true,
@@ -125,7 +128,8 @@ export default {
     styleResources: {
         scss: [
             '@spin-interactive/spikotify/lib/assets/scss/utils/_mixins.scss',
-            'assets/scss/utils/_variables.scss',
+            '@spin-interactive/spikotify/lib/assets/scss/utils/_placeholdersSelectors.scss',
+            '@spin-interactive/spikotify/lib/assets/scss/utils/_variables.scss',
             'assets/scss/utils/_placeholderSelectors.scss',
         ],
     },
