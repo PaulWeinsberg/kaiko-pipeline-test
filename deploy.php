@@ -4,7 +4,7 @@ require 'recipe/common.php';
 
 set('application', '~/www/22KAI001_WEBAPP');
 
-set('repository', 'git@github.com.22KAI001_WEBAPP:spininteractive/22KAI001_WEBAPP.git');
+set('repository', 'git@github.com.spininteractive-institutionalwebsite:kaikodata/spininteractive-institutionalwebsite.git');
 set('git_tty', false);
 set('shared_files', ['.env']);
 set('shared_dirs', ['assets/fonts/icons/_source']);
