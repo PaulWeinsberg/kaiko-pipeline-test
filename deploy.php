@@ -19,15 +19,25 @@ host('test')
     ->identityFile('keys/test.key')
     ->user('kaiko-test')
     ->set('branch', 'test')
-    ->set('deploy_path', '{{application}}');
+    ->set('deploy_path', '{{application}}')
+    ->set('bin/npm', 'npm');
+
+host('preprod')
+    ->stage('preprod')
+    ->hostname('ssh-kaiko-preprod.alwaysdata.net')
+    ->identityFile('keys/preprod.key')
+    ->user('kaiko-preprod')
+    ->set('branch', 'preprod')
+    ->set('deploy_path', '{{application}}')
+    ->set('bin/npm', 'npm');
 
 // Tasks
 task('deploy:npm_install', function () {
-    run('cd {{release_path}} && npm install');
+    run('cd {{release_path}} && {{bin/npm}} install --no-audit --verbose');
 });
 
 task('deploy:npm_nuxt_build', function () {
-    run('cd {{release_path}} && npm run build');
+    run('cd {{release_path}} && {{bin/npm}} run build');
 });
 
 // DEPLOYMENT TASKS
