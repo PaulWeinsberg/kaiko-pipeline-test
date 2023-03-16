@@ -1,3 +1,6 @@
+import axios from 'axios'
+import { sitemapGenerator } from './utils/sitemap'
+
 export default {
     // https://github.com/ktquez/vue-head
     head: {
@@ -59,9 +62,7 @@ export default {
         apiUrl: process.env.API_URL,
         apiKey: process.env.API_KEY,
         baseUrl: process.env.BASE_URL,
-        recaptcha: {
-            siteKey: process.env.RECAPTCHA_SITE_KEY, // for example
-        },
+        wpUrl: process.env.WP_URL,
         axeptio: {
             clientId: process.env.AXEPTIO_CLIENT_ID,
             cookiesVersion: process.env.AXEPTIO_COOKIES_VERSION,
@@ -79,7 +80,6 @@ export default {
             src: '@spin-interactive/spikotify/lib/assets/scss/base/_fonts.scss',
             lang: 'scss',
         },
-        { src: '~/assets/scss/main.scss', lang: 'scss' },
     ],
 
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
@@ -108,8 +108,6 @@ export default {
         '@nuxtjs/gtm',
         // https://portal-vue.linusb.org/
         'portal-vue/nuxt',
-        // https://github.com/nuxt-community/recaptcha-module
-        // '@nuxtjs/recaptcha',
         // https://www.npmjs.com/package/cookie-universal-nuxt
         'cookie-universal-nuxt',
         [
@@ -122,6 +120,10 @@ export default {
                 },
             },
         ],
+        // https://sitemap.nuxtjs.org/fr
+        '@nuxtjs/sitemap',
+        // https://image.nuxtjs.org
+        '@nuxt/image',
     ],
 
     // Style resources
@@ -130,7 +132,6 @@ export default {
             '@spin-interactive/spikotify/lib/assets/scss/utils/_mixins.scss',
             '@spin-interactive/spikotify/lib/assets/scss/utils/_placeholdersSelectors.scss',
             '@spin-interactive/spikotify/lib/assets/scss/utils/_variables.scss',
-            'assets/scss/utils/_placeholderSelectors.scss',
         ],
     },
 
@@ -143,9 +144,9 @@ export default {
 
     // Build Configuration: https://go.nuxtjs.dev/config-build
     build: {
-        transpile: ['gsap'],
+        transpile: ['gsap', 'axios'],
         loaders: { scss: { sourceMap: false } },
-        extend(config, ctx) {
+        extend(config) {
             config.resolve.alias.vue$ = 'vue/dist/vue.esm.js'
         },
     },
@@ -162,9 +163,5 @@ export default {
         middleware: ['trailingSlashRedirect'],
     },
 
-    // recaptcha: {
-    //     hideBadge: true,
-    //     siteKey: process.env.RECAPTCHA_SITE_KEY,
-    //     version: 3,
-    // },
+    sitemap: sitemapGenerator,
 }
