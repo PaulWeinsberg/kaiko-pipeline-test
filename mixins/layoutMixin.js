@@ -39,6 +39,8 @@ export default {
         }),
     },
     mounted() {
+        this.setWindowsWidth()
+        window.addEventListener('resize', this.setWindowsWidth)
         this.onFullScreenChangeAddEvents()
 
         this.watchForHover()
@@ -54,6 +56,16 @@ export default {
         document.removeEventListener('mousemove', this.enableHover, true)
     },
     methods: {
+        /**
+         * Permet de set la taille de l'écran au resize
+         */
+        setWindowsWidth() {
+            const { $store, windowWidth } = this
+            const newWidth = window.innerWidth
+            if (windowWidth !== newWidth) {
+                $store.commit('general/SET_WINDOW_WIDTH', newWidth)
+            }
+        },
         /**
          * Permet de vérifier si on peut utiliser le hover ou non
          */

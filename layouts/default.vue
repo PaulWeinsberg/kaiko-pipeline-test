@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <BaseHeader />
+        <BaseHeader search />
         <BaseMegaMenu />
         <Nuxt />
         <BaseFooter
