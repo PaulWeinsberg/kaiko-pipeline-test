@@ -1,6 +1,17 @@
 <template>
     <SIMain>
         <SIWrapper flex-direction="column">
+            <ul>
+                <CardProfile
+                    :image="{
+                        url: 'http://22kai001.spin/wp-content/uploads/sites/1/2023/03/rectangle-2.jpg.webp',
+                    }"
+                    name="Nom prénom"
+                    role="Fonction"
+                />
+            </ul>
+        </SIWrapper>
+        <SIWrapper flex-direction="column">
             <CardFAQ
                 tag="div"
                 title="Test title"
