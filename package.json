@@ -18,7 +18,7 @@
         "@nuxtjs/gtm": "^2.4.0",
         "@nuxtjs/recaptcha": "^1.1.1",
         "@nuxtjs/sitemap": "^2.4.0",
-        "@spin-interactive/js-core": "^0.1.1",
+        "@spin-interactive/js-core": "0.1.3",
         "@spin-interactive/spikotify": "^0.3.4",
         "axios": "^1.3.4",
         "cookie-universal-nuxt": "^2.2.2",

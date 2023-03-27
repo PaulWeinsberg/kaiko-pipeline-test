@@ -2,6 +2,38 @@
     <SIMain>
         <SIWrapper flex-direction="column">
             <ul>
+                <CardOffice
+                    :image="{
+                        url: 'http://22kai001.spin/wp-content/uploads/sites/1/2023/03/rectangle-2.jpg.webp',
+                    }"
+                    city="New York"
+                    address="750 LExington Ave"
+                />
+                <CardOffice
+                    :image="{
+                        url: 'http://22kai001.spin/wp-content/uploads/sites/1/2023/03/rectangle-2.jpg.webp',
+                    }"
+                    city="New York"
+                    address="750 LExington Ave"
+                />
+                <CardOffice
+                    :image="{
+                        url: 'http://22kai001.spin/wp-content/uploads/sites/1/2023/03/rectangle-2.jpg.webp',
+                    }"
+                    city="New York"
+                    address="750 LExington Ave"
+                />
+                <CardOffice
+                    :image="{
+                        url: 'http://22kai001.spin/wp-content/uploads/sites/1/2023/03/rectangle-2.jpg.webp',
+                    }"
+                    city="New York"
+                    address="750 LExington Ave"
+                />
+            </ul>
+        </SIWrapper>
+        <SIWrapper flex-direction="column">
+            <ul>
                 <CardProfile
                     :image="{
                         url: 'http://22kai001.spin/wp-content/uploads/sites/1/2023/03/rectangle-2.jpg.webp',
@@ -42,4 +74,8 @@
     }
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+    ul {
+        display: flex;
+    }
+</style>
