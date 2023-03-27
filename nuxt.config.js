@@ -124,6 +124,13 @@ export default {
         '@nuxtjs/sitemap',
         // https://image.nuxtjs.org
         '@nuxt/image',
+        // https://www.npmjs.com/package/nuxt-highlightjs
+        [
+            'nuxt-highlightjs',
+            {
+                style: 'night-owl',
+            },
+        ],
     ],
 
     // Style resources
@@ -161,6 +168,14 @@ export default {
 
     router: {
         middleware: ['trailingSlashRedirect'],
+    },
+
+    render: {
+        bundleRenderer: {
+            shouldPreload: (_file, type) => {
+                return ['script', 'style', 'font'].includes(type)
+            },
+        },
     },
 
     sitemap: sitemapGenerator,
