@@ -1,37 +1,60 @@
 <template>
-    <TplSearchResults :items="page.list" />
+    <TplError v-if="$fetchState.error" />
+    <TplSearchResults v-else :items="page.list" :loading="loading" />
 </template>
 
 <script>
-    import { displayError } from '@/utils/devErrorHandle'
+    import { mapState } from 'vuex'
 
     export default {
         name: 'RouteSearch',
-        async asyncData({ route, $api, error }) {
+        data: () => ({
+            page: {},
+            loading: false,
+        }),
+        async fetch() {
+            this.loading = true
             try {
+                const { $route, $api } = this
+
                 const params = {
-                    ...route.params,
-                    ...route.query,
+                    ...$route.params,
+                    ...$route.query,
+                    order: 'DESC',
+                    orderby: 'post_date',
                 }
 
                 const { data } = await $api.get('search', {
                     params,
                 })
 
-                return {
-                    page: data,
-                }
+                this.page = data
             } catch (err) {
-                displayError({ err })
-                return error({
-                    statusCode: 404,
-                })
+                if (err.message === 'Canceled') return
+                const { $displayError } = this
+                $displayError({ err })
+                throw new Error(err.message)
+            }
+            this.loading = false
+        },
+        head() {
+            const { wordings, globalSeo } = this
+            return {
+                title: `${wordings.g_search.seo.title} - ${globalSeo.title}`,
+                metas: [
+                    {
+                        hid: 'description',
+                        name: 'description',
+                        content: wordings.g_search.seo.description,
+                    },
+                ],
             }
         },
-        mounted() {
-            console.log(this.page)
+        computed: {
+            ...mapState({
+                globalSeo: state => state.seo.seo,
+                wordings: state => state.options.options.wordings,
+            }),
         },
     }
 </script>
-
-<style scoped></style>
