@@ -34,6 +34,12 @@ export default {
         return {
             title,
             meta: [_description, ...specificMeta, ...facebook, ...twitter],
+            script: [
+                {
+                    type: 'application/ld+json',
+                    json: seo.schema,
+                },
+            ],
         }
     },
     computed: {
