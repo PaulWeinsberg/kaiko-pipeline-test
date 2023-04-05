@@ -41,11 +41,16 @@
             const { wordings, globalSeo } = this
             return {
                 title: `${wordings.g_search.seo.title} - ${globalSeo.title}`,
-                metas: [
+                meta: [
                     {
                         hid: 'description',
                         name: 'description',
                         content: wordings.g_search.seo.description,
+                    },
+                    {
+                        hid: 'robots',
+                        name: 'robots',
+                        content: 'noindex',
                     },
                 ],
             }
