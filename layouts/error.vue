@@ -1,36 +1,29 @@
 <template>
     <div id="app">
-        <!--        <TplError />-->
+        <TplError />
     </div>
 </template>
 
 <script>
-    import { mapState } from 'vuex'
-
     export default {
         name: 'Error',
         layout: 'error',
-        props: {
-            error: {
-                type: Object,
-                required: true,
-            },
-        },
-        computed: {
-            ...mapState({
-                options: state => state.options.options,
-            }),
+        head() {
+            return {
+                meta: [
+                    {
+                        hid: 'robots',
+                        name: 'robots',
+                        content: 'noindex',
+                    },
+                ],
+            }
         },
     }
 </script>
 
 <style scoped lang="scss">
-    #error-page {
-        flex: 1;
-        align-items: center;
-        justify-content: center;
-        .si-wrapper {
-            flex: 1;
-        }
+    #app {
+        min-height: auto;
     }
 </style>
