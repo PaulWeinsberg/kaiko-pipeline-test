@@ -31,15 +31,18 @@ export default {
 
         const specificMeta = [...(this.meta || []), ...(seo.metas || [])]
 
+        let schemas = {}
+        if (seo.schema) {
+            schemas = {
+                type: 'application/ld+json',
+                json: seo.schema,
+            }
+        }
+
         return {
             title,
             meta: [_description, ...specificMeta, ...facebook, ...twitter],
-            script: [
-                {
-                    type: 'application/ld+json',
-                    json: seo.schema,
-                },
-            ],
+            script: [schemas],
         }
     },
     computed: {
