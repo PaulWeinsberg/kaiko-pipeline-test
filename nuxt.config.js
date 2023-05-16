@@ -170,13 +170,5 @@ export default {
         middleware: ['trailingSlashRedirect'],
     },
 
-    render: {
-        bundleRenderer: {
-            shouldPreload: (_file, type) => {
-                return ['script', 'style', 'font'].includes(type)
-            },
-        },
-    },
-
     sitemap: sitemapGenerator,
 }
