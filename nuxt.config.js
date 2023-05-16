@@ -114,7 +114,7 @@ export default {
             'nuxt-lazy-load',
             {
                 directiveOnly: true,
-                native: true,
+                native: false,
                 observerConfig: {
                     rootMargin: '100%', // On charge toutes les images qui sont à moins d'un écran d'écart avec l'écran courant
                 },
