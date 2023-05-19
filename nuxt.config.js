@@ -50,11 +50,6 @@ export default {
             { hid: 'og:type', property: 'og:type', content: 'website' },
             { hid: 'author', name: 'author', content: 'Spin Interactive' },
         ],
-        script: [
-            {
-                src: 'https://js.hsforms.net/forms/v2.js',
-            },
-        ],
     },
 
     // Runtime config : https://fr.nuxtjs.org/docs/2.x/configuration-glossary/configuration-runtime-config/
