@@ -39,6 +39,18 @@ host('preprod-client')
     ->set('ovh_restart_service_name', 'kaikore.cluster024.hosting.ovh.net')
     ->set('ovh_restart_domain', 'institutional.kaiko.xyz');
 
+host('prod')
+    ->stage('prod')
+    ->port(43904)
+    ->hostname('sshcloud.cluster024.hosting.ovh.net')
+    ->identityFile('keys/preprod-client.key')
+    ->user('kaikore')
+    ->set('deploy_path', '~/www/institutional-production')
+    ->set('node_env', 'production')
+    ->set('ovh', true)
+    ->set('ovh_restart_service_name', 'kaikore.cluster024.hosting.ovh.net')
+    ->set('ovh_restart_domain', 'institutional.kaiko.com');
+
 /** TASKS **/
 // Permet d'installer les packages
 task('deploy:npm_install', function () {
