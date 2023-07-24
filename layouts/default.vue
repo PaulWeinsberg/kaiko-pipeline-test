@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <BaseHeader search />
+        <BaseHeader :search="showSearchField" />
         <BaseMegaMenu />
         <Nuxt />
         <BaseFooter
@@ -20,15 +20,23 @@
         mixins: [layoutMixin],
         computed: {
             ...mapState({
+                header: state => state.menu.menu,
                 footer: state => state.menu.footer.items,
                 subFooter: state => state.menu.footerSub.items,
                 options: state => state.options.options,
             }),
+            showSearchField() {
+                const { header } = this
+                return header?.custom_fields?.show_search_field ?? false
+            },
         },
         watch: {
             $route() {
                 this.$nuxt.$emit('navigation:show', { show: false })
             },
+        },
+        mounted() {
+            console.log(this.header)
         },
     }
 </script>
