@@ -35,8 +35,5 @@
                 this.$nuxt.$emit('navigation:show', { show: false })
             },
         },
-        mounted() {
-            console.log(this.header)
-        },
     }
 </script>
