@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <BaseHeader :search="showSearchField" />
+        <BaseHeader :search="showSearchField" :has-mega-menu="false" />
         <BaseMegaMenu />
         <Nuxt />
         <BaseFooter
