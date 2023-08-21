@@ -4,36 +4,40 @@
 
 <script>
     import seoMixin from '~/mixins/seoMixin'
-    import { displayError } from '~/utils/devErrorHandle'
+    // import { displayError } from '~/utils/devErrorHandle'
     export default {
         name: 'BaseRoute',
         mixins: [seoMixin],
-        async asyncData({ route, $api, error }) {
-            try {
-                const params = {
-                    ...route.params,
-                    ...route.query,
-                }
+        async asyncData({ $api, route, error, $queryString }) {
+            const params = { ...route.params, ...route.query }
+            if (params && params.preview) {
+                delete params.preview_nonce
+                delete params.thumbnail_id
+            }
 
-                if (params && params.preview) {
-                    delete params.preview_nonce
-                    delete params.thumbnail_id
-                }
+            const baseQuery = $queryString.stringify(params, {
+                arrayFormat: 'index',
+                skipNull: true,
+            })
 
-                const { data } = await $api.get('page', {
-                    params,
-                })
+            let data = {}
+            const endpoints = { page: `/page?${baseQuery}` }
 
-                return {
-                    page: data,
-                    template: data.infos.template,
-                }
-            } catch (err) {
-                if (err.message === 'Canceled') return
-                displayError({ err })
-                return error({
-                    statusCode: 404,
-                })
+            await $api.get(endpoints, {
+                onSuccess: response => {
+                    data = { ...data, ...response }
+                },
+                onError: err => {
+                    return error({
+                        statusCode: err.status,
+                        message: err.statusText,
+                    })
+                },
+            })
+
+            return {
+                page: data.page ?? {},
+                template: data?.page?.infos?.template,
             }
         },
     }

@@ -13,7 +13,7 @@
 
 <script>
     import { mapState } from 'vuex'
-    import layoutMixin from '~/mixins/layoutMixin'
+    import layoutMixin from '@/mixins/layoutMixin'
 
     export default {
         name: 'LayoutDefault',
