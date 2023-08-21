@@ -119,13 +119,6 @@ export default {
         '@nuxtjs/sitemap',
         // https://image.nuxtjs.org
         '@nuxt/image',
-        // https://www.npmjs.com/package/nuxt-highlightjs
-        [
-            'nuxt-highlightjs',
-            {
-                style: 'night-owl',
-            },
-        ],
     ],
 
     // Style resources
