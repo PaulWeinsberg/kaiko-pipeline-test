@@ -1,4 +1,8 @@
+import dotenv from 'dotenv'
 import { sitemapGenerator } from './utils/sitemap'
+
+const result = dotenv.config({ path: `./.env.${process.env.NODE_ENV}` })
+process.env = { ...process.env, ...result.parsed }
 
 export default {
     // https://github.com/ktquez/vue-head

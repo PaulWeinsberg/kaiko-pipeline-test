@@ -24,7 +24,7 @@ host('test')
     ->user('kaiko-test')
     ->set('branch', 'test')
     ->set('deploy_path', '{{application}}')
-    ->set('node_env', 'dev')
+    ->set('node_env', 'test')
     ->set('ovh', false);
 
 host('preprod-client')
@@ -34,7 +34,7 @@ host('preprod-client')
     ->identityFile('keys/preprod-client.key')
     ->user('kaikore')
     ->set('deploy_path', '~/www/institutional')
-    ->set('node_env', 'production')
+    ->set('node_env', 'preprod')
     ->set('ovh', true)
     ->set('ovh_restart_service_name', 'kaikore.cluster024.hosting.ovh.net')
     ->set('ovh_restart_domain', 'institutional.kaiko.xyz');
@@ -47,9 +47,9 @@ host('prod')
     ->user('kaikore')
     ->set('deploy_path', '~/www/institutional-production')
     ->set('node_env', 'production')
-    ->set('ovh', true)
-    ->set('ovh_restart_service_name', 'kaikore.cluster024.hosting.ovh.net')
-    ->set('ovh_restart_domain', 'institutional.kaiko.com');
+    ->set('ovh', false);
+//    ->set('ovh_restart_service_name', 'kaikore.cluster024.hosting.ovh.net')
+//    ->set('ovh_restart_domain', 'institutional.kaiko.com');
 
 /** TASKS **/
 // Permet d'installer les packages
@@ -63,7 +63,8 @@ task('deploy:npm_nuxt_build', function () {
 });
 // Permet de build localement la webapp
 task('deploy:npm_nuxt_build_rsync', function () {
-    runLocally('npm run build');
+    $nodeEnv = get('node_env');
+    runLocally('NODE_ENV=' . $nodeEnv . ' npm run build');
 });
 // Permet de déployer la webapp en RSync
 task('deploy:rsync', function () {
