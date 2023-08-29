@@ -1,52 +1,51 @@
 <template>
-    <p v-if="$fetchState.pending">Loading...</p>
-    <p v-else-if="$fetchState.error">404</p>
-    <div v-else class="test">
-        <p>{{ page.content._title }}</p>
-        <SILink btn path="/test" title="Bouton" background-color="black-900" />
-    </div>
+    <TplEdito :content="page.content" :seo="page.seo" :infos="page.infos" />
 </template>
 
 <script>
+    import seoMixin from '~/mixins/seoMixin'
+    // import { displayError } from '~/utils/devErrorHandle'
     export default {
         name: 'BaseRoute',
-        data: () => ({
-            page: {},
-            template: null,
-        }),
-        async fetch() {
-            try {
-                const { $route, $api } = this
+        mixins: [seoMixin],
+        async asyncData({ $api, route, error, $queryString }) {
+            const params = { ...route.params, ...route.query }
+            if (params && params.preview) {
+                delete params.preview_nonce
+                delete params.thumbnail_id
+            }
 
-                const params = {
-                    ...$route.params,
-                    ...$route.query,
-                }
+            const baseQuery = $queryString.stringify(params, {
+                arrayFormat: 'index',
+                skipNull: true,
+            })
 
-                if (params && params.preview) {
-                    delete params.preview_nonce
-                    delete params.thumbnail_id
-                }
+            let data = {}
+            const endpoints = { page: `/page?${baseQuery}` }
 
-                const { data } = await $api.get('page', {
-                    params,
-                })
-                this.page = data
+            await $api.get(endpoints, {
+                onSuccess: response => {
+                    data = { ...data, ...response }
+                },
+                onError: err => {
+                    return error({
+                        statusCode: err.status,
+                        message: err.statusText,
+                    })
+                },
+            })
 
-                this.template = data.infos.template
-            } catch (err) {
-                const { $displayError } = this
-                $displayError({ err })
-                throw new Error(err.message)
+            return {
+                page: data.page ?? {},
+                template: data?.page?.infos?.template,
             }
         },
     }
 </script>
 
 <style lang="scss">
-    .test {
-        display: flex;
-        align-items: flex-start;
-        flex-direction: column;
+    .si-loader.page-loader {
+        z-index: 0;
+        height: 70vh;
     }
 </style>

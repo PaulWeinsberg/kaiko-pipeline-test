@@ -37,3 +37,8 @@ Et voilà, vous pouvez dorénavant accéder à la WebApp.
     *   Utilisation du deployer
 *   **Prod**
     *   Utilisation du deployer
+
+## ACF
+Kaiko étant un multisite, une gestion spécifique des ACF a été mise en place.
+
+Merci de s'en référer au readme [spininteractive-backoffice](https://github.com/kaikodata/spininteractive-backoffice).

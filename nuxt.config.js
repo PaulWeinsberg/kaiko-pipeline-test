@@ -1,3 +1,9 @@
+import dotenv from 'dotenv'
+import { sitemapGenerator } from './utils/sitemap'
+
+const result = dotenv.config({ path: `./.env.${process.env.NODE_ENV}` })
+process.env = { ...process.env, ...result.parsed }
+
 export default {
     // https://github.com/ktquez/vue-head
     head: {
@@ -27,7 +33,7 @@ export default {
             {
                 hid: 'twitter:site',
                 name: 'twitter:site',
-                content: 'Kaiko',
+                content: 'Outsideur',
             },
             {
                 hid: 'twitter:creator',
@@ -37,7 +43,7 @@ export default {
             {
                 hid: 'og:site_name',
                 property: 'og:site_name',
-                content: 'Kaiko',
+                content: 'Outsideur',
             },
             {
                 hid: 'og:locale',
@@ -54,33 +60,28 @@ export default {
         apiUrl: process.env.API_URL,
         apiKey: process.env.API_KEY,
         baseUrl: process.env.BASE_URL,
-        recaptcha: {
-            siteKey: process.env.RECAPTCHA_SITE_KEY, // for example
-        },
+        wpUrl: process.env.WP_URL,
         axeptio: {
             clientId: process.env.AXEPTIO_CLIENT_ID,
             cookiesVersion: process.env.AXEPTIO_COOKIES_VERSION,
+            userCookiesDomain: process.env.AXEPTIO_USER_COOKIES_DOMAIN,
         },
     },
 
     // Global CSS: https://go.nuxtjs.dev/config-css
     css: [
         {
-            src: '@spin-interactive/spikotify/lib/assets/main.scss',
+            src: '@spin-interactive/spikotify/lib/assets/scss/main.scss',
             lang: 'scss',
         },
         {
             src: '@spin-interactive/spikotify/lib/assets/scss/base/_fonts.scss',
             lang: 'scss',
         },
-        { src: '~/assets/scss/main.scss', lang: 'scss' },
     ],
 
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-    plugins: [
-        { src: '~/plugins/gtm' },
-        { src: '~/plugins/toaster' },
-    ],
+    plugins: [{ src: '~/plugins/gtm' }],
 
     // Auto import components: https://go.nuxtjs.dev/config-components
     components: true,
@@ -105,28 +106,30 @@ export default {
         '@nuxtjs/gtm',
         // https://portal-vue.linusb.org/
         'portal-vue/nuxt',
-        // https://github.com/nuxt-community/recaptcha-module
-        // '@nuxtjs/recaptcha',
         // https://www.npmjs.com/package/cookie-universal-nuxt
         'cookie-universal-nuxt',
         [
             'nuxt-lazy-load',
             {
                 directiveOnly: true,
-                native: true,
+                native: false,
                 observerConfig: {
                     rootMargin: '100%', // On charge toutes les images qui sont à moins d'un écran d'écart avec l'écran courant
                 },
             },
         ],
+        // https://sitemap.nuxtjs.org/fr
+        '@nuxtjs/sitemap',
+        // https://image.nuxtjs.org
+        '@nuxt/image',
     ],
 
     // Style resources
     styleResources: {
         scss: [
             '@spin-interactive/spikotify/lib/assets/scss/utils/_mixins.scss',
-            'assets/scss/utils/_variables.scss',
-            'assets/scss/utils/_placeholderSelectors.scss',
+            '@spin-interactive/spikotify/lib/assets/scss/utils/_placeholdersSelectors.scss',
+            '@spin-interactive/spikotify/lib/assets/scss/utils/_variables.scss',
         ],
     },
 
@@ -139,10 +142,17 @@ export default {
 
     // Build Configuration: https://go.nuxtjs.dev/config-build
     build: {
-        transpile: ['gsap'],
+        transpile: [
+            'query-string',
+            'filter-obj',
+            'decode-uri-component',
+            'split-on-first',
+            'gsap',
+            'axios',
+        ],
         loaders: { scss: { sourceMap: false } },
-        extend(config, ctx) {
-            config.resolve.alias.vue$ = 'vue/dist/vue.esm.js'
+        extend(config) {
+            config.resolve.alias.vue = 'vue/dist/vue.common'
         },
     },
 
@@ -158,9 +168,5 @@ export default {
         middleware: ['trailingSlashRedirect'],
     },
 
-    // recaptcha: {
-    //     hideBadge: true,
-    //     siteKey: process.env.RECAPTCHA_SITE_KEY,
-    //     version: 3,
-    // },
+    sitemap: sitemapGenerator,
 }
