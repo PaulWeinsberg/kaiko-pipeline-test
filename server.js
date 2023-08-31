@@ -3,7 +3,7 @@ const { loadNuxt, build } = require('nuxt')
 const app = require('express')()
 const port = process.env.PORT || 3000
 
-const isNotDev = ['test', 'preprod']
+const isNotDev = ['test']
 const isDev = !isNotDev.includes(process.env.NODE_ENV)
 
 async function start() {
