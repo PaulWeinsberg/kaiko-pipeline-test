@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div id="app" class="default">
         <BaseHeader :search="showSearchField" :has-mega-menu="false" />
         <BaseMegaMenu />
         <Nuxt />
