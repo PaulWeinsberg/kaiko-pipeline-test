@@ -1,8 +1,5 @@
-import dotenv from 'dotenv'
 import { sitemapGenerator } from './utils/sitemap'
-
-const result = dotenv.config({ path: `./.env.${process.env.NODE_ENV}` })
-process.env = { ...process.env, ...result.parsed }
+import { redirectGenerator } from './redirects/index.js'
 
 export default {
     // https://github.com/ktquez/vue-head
@@ -23,7 +20,7 @@ export default {
             {
                 hid: 'twitter:card',
                 name: 'twitter:card',
-                content: 'summary',
+                content: 'summary_large_image',
             },
             {
                 hid: 'twitter:image',
@@ -33,7 +30,7 @@ export default {
             {
                 hid: 'twitter:site',
                 name: 'twitter:site',
-                content: 'Outsideur',
+                content: 'Kaiko',
             },
             {
                 hid: 'twitter:creator',
@@ -43,15 +40,37 @@ export default {
             {
                 hid: 'og:site_name',
                 property: 'og:site_name',
-                content: 'Outsideur',
+                content: 'Kaiko',
             },
             {
                 hid: 'og:locale',
                 property: 'og:locale',
                 content: 'fr',
             },
-            { hid: 'og:type', property: 'og:type', content: 'website' },
-            { hid: 'author', name: 'author', content: 'Spin Interactive' },
+            {
+                hid: 'og:type',
+                property: 'og:type',
+                content: 'website',
+            },
+            {
+                hid: 'author',
+                name: 'author',
+                content: 'Spin Interactive',
+            },
+            {
+                hid: 'google-site-verification',
+                name: 'google-site-verification',
+                content: 'UkwLcwRj1RBzkC9in7Fi0GZFIwUnzGN5rzPYxxLpAJI',
+            },
+        ],
+        script: [
+            {
+                type: 'text/javascript',
+                id: 'hs-script-loader',
+                async: true,
+                defer: true,
+                src: '//js-eu1.hs-scripts.com/25446524.js',
+            },
         ],
     },
 
@@ -79,9 +98,6 @@ export default {
             lang: 'scss',
         },
     ],
-
-    // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-    plugins: [{ src: '~/plugins/gtm' }],
 
     // Auto import components: https://go.nuxtjs.dev/config-components
     components: true,
@@ -122,6 +138,8 @@ export default {
         '@nuxtjs/sitemap',
         // https://image.nuxtjs.org
         '@nuxt/image',
+        // https://github.com/nuxt-community/redirect-module
+        '@nuxtjs/redirect-module',
     ],
 
     // Style resources
@@ -156,6 +174,10 @@ export default {
         },
     },
 
+    render: {
+        asyncScripts: true,
+    },
+
     gtm: {
         enabled: process.env.GTM_ENABLE !== 'false', // true pour pusher les events vers GTM
         debug: process.env.GTM_DEBUG !== 'false', // true pour activer le debug GTM
@@ -174,4 +196,6 @@ export default {
     },
 
     sitemap: sitemapGenerator,
+
+    redirect: redirectGenerator,
 }

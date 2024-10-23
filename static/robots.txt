@@ -12,7 +12,6 @@ Disallow: /category/
 Disallow: */trackback
 Disallow: */feed
 Disallow: */comments
-Disallow: /*?
 
 Disallow: /*.php$
 Disallow: /*.inc$
