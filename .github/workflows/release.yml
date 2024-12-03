@@ -27,7 +27,7 @@
           id: release
           run: |
             APP=spininteractive-institutionalwebsite
-            VERSION=$(echo ${GITHUB_REF_NAME})
+            VERSION=$(echo ${GITHUB_REF_NAME} | sed 's#/+#-#g')
             make release VERSION=${VERSION}
             echo ${GOOGLE_APPLICATION_CREDENTIALS} | docker login --username _json_key --password-stdin https://gcr.io
             docker push gcr.io/kaiko-gcr/$APP:$VERSION
