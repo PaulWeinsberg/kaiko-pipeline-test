@@ -4,7 +4,7 @@ BUILDDIR       ?= .
 WORKDIR         = /app
 VERSION        ?= HEAD
 IMAGE          ?= gcr.io/kaiko-gcr/spininteractive-institutionalwebsite:$(VERSION)
-
+DOCKER_RELEASE ?= Dockerfile.release
 DOCKER ?= docker run \
 		--interactive \
 		--tty \
@@ -32,7 +32,7 @@ start:
 
 # Release the application
 release:
-	docker build --tag="$(IMAGE)" $(BUILDDIR)
+	docker build --tag="$(IMAGE)" $(BUILDDIR) --file="$(DOCKER_RELEASE)"
 
 # Clean up Docker images and containers
 clean:
