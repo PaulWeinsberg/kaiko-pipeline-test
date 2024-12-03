@@ -15,20 +15,20 @@
   
   jobs:
     release:
-      runs-on: self-hosted
+      runs-on: ubuntu-latest
       permissions:
         contents: write
       steps:
         - uses: actions/checkout@v4
         - uses: actions/setup-node@v4
           with:
-            node-version: 18-alpine
+            node-version: lts/iron
         - name: release
           id: release
           run: |
             APP=spininteractive-institutionalwebsite
             VERSION=$(echo ${GITHUB_REF_NAME})
-            make release-image VERSION=${VERSION}
+            make release VERSION=${VERSION}
             echo ${GOOGLE_APPLICATION_CREDENTIALS} | docker login --username _json_key --password-stdin https://gcr.io
             docker push gcr.io/kaiko-gcr/$APP:$VERSION
             echo "::set-output name=binary::${APP}-${VERSION}"
