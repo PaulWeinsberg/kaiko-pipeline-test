@@ -7,7 +7,7 @@
   
   on:
     pull_request:
-      branches: ['*']
+      branches: [ "master" ]
   
   env:
     COREPACK_ENABLE_AUTO_PIN: 0
