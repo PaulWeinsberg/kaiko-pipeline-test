@@ -18,20 +18,20 @@ DOCKER ?= docker run \
 
 .PHONY: build start release clean install
 
-# Build the Docker image
-build:
-	$(DOCKER_RUN) yarn build
-
 # Install the application
 install:
-	$(DOCKER_RUN) yarn install
+	$(DOCKER) yarn install
+
+# Build the Docker image
+build: install
+	$(DOCKER) yarn build
 
 # Start the application
 start:
-	$(DOCKER_RUN) yarn start
+	$(DOCKER) yarn start
 
 # Release the application
-release:
+release: build
 	docker build --tag="$(IMAGE)" $(BUILDDIR) --file="$(DOCKER_RELEASE)"
 
 # Clean up Docker images and containers
