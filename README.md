@@ -16,7 +16,7 @@ Kaiko - Nuxt | Showcase site
 ### Prerequisites
 To launch the project, you must have:
 
-* [Yarn](https:/ /classic.yarnpkg.com/en/docs/install/#mac-stable)
+* [Yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
 * [Node](https://nodejs.org/fr/) >= 14.17.0
 
 To deploy, you need to have:
