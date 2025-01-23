@@ -1,6 +1,0 @@
-{
-    "require": {
-        "ovh/ovh": "^3.1",
-        "vlucas/phpdotenv": "^5.5"
-    }
-}
