@@ -24,7 +24,7 @@ install:
 
 # Build the Docker image
 build: install
-	$(DOCKER) yarn build
+	$(DOCKER) yarn build:preprod
 
 # Start the application
 start:

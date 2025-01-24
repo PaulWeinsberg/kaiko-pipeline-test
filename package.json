@@ -10,7 +10,7 @@
         "dev:mobile": "nuxt --hostname 0.0.0.0 --port 8000",
         "build": "nuxt build",
         "build:test": "NODE_ENV=test nuxt build",
-        "build:preprod": "NODE_ENV=preprod nuxt build",
+        "build:preprod": "NODE_ENV=preprod BASE_URL=https://www.kaiko.ovh/ WP_URL=https://web-bo-i.kaiko.ovh/ API_URL=https://web-bo-i.kaiko.ovh/wp-json/spin-api/ nuxt build",
         "build:production": "NODE_ENV=prod nuxt build",
         "start": "nuxt start",
         "generate": "nuxt generate",
