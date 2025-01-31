@@ -10,6 +10,7 @@ DOCKER ?= docker run \
 		--tty \
 		--rm \
 		-e"HOME=$(WORKDIR)" \
+		-e"NODE_ENV" \
 		-e"BASE_URL" \
 		-e"WP_URL" \
 		-e"API_URL" \
@@ -28,7 +29,7 @@ install:
 
 # Build the Docker image
 build: install
-	$(DOCKER) yarn build:preprod
+	$(DOCKER) yarn build
 
 # Start the application
 start:
