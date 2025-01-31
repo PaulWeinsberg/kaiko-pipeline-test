@@ -10,6 +10,11 @@ DOCKER ?= docker run \
 		--tty \
 		--rm \
 		-e"HOME=$(WORKDIR)" \
+		-e"NODE_ENV" \
+		-e"BASE_URL" \
+		-e"WP_URL" \
+		-e"API_URL" \
+		-e"API_KEY" \
 		--user="$(UIDGID)" \
 		--volume="$(shell pwd):$(WORKDIR)" \
 		--workdir="$(WORKDIR)" \

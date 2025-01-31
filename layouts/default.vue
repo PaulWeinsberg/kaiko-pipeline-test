@@ -4,9 +4,10 @@
         <BaseMegaMenu />
         <Nuxt />
         <BaseFooter
-            :footer="footer"
+            :footer="footer.items"
             :sub-footer="subFooter"
             :options="options"
+            :social-medias="footer.custom_fields.social_medias"
         />
     </div>
 </template>
@@ -20,10 +21,8 @@
         mixins: [layoutMixin],
         computed: {
             ...mapState({
-                header: state => state.menu.menu,
-                footer: state => state.menu.footer.items,
+                footer: state => state.menu.footer,
                 subFooter: state => state.menu.footerSub.items,
-                options: state => state.options.options,
             }),
             showSearchField() {
                 const { header } = this

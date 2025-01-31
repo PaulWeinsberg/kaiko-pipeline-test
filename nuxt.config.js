@@ -1,8 +1,18 @@
-import dotenv from 'dotenv'
+import axios from 'axios'
 import { sitemapGenerator } from './utils/sitemap'
+import { redirectGenerator } from './redirects/index.js'
 
-const result = dotenv.config({ path: `./.env.${process.env.NODE_ENV}` })
-process.env = { ...process.env, ...result.parsed }
+const createAxios = axios.create({
+    headers: {
+        common: {
+            Accept: 'application/json, text/plain, */*',
+            'X-Auth-Token': process.env.API_KEY,
+        },
+    },
+    credentials: false,
+    withCredentials: false,
+    baseURL: process.env.API_URL,
+})
 
 export default {
     // https://github.com/ktquez/vue-head
@@ -23,7 +33,7 @@ export default {
             {
                 hid: 'twitter:card',
                 name: 'twitter:card',
-                content: 'summary',
+                content: 'summary_large_image',
             },
             {
                 hid: 'twitter:image',
@@ -33,7 +43,7 @@ export default {
             {
                 hid: 'twitter:site',
                 name: 'twitter:site',
-                content: 'Outsideur',
+                content: 'Kaiko',
             },
             {
                 hid: 'twitter:creator',
@@ -43,15 +53,37 @@ export default {
             {
                 hid: 'og:site_name',
                 property: 'og:site_name',
-                content: 'Outsideur',
+                content: 'Kaiko',
             },
             {
                 hid: 'og:locale',
                 property: 'og:locale',
                 content: 'fr',
             },
-            { hid: 'og:type', property: 'og:type', content: 'website' },
-            { hid: 'author', name: 'author', content: 'Spin Interactive' },
+            {
+                hid: 'og:type',
+                property: 'og:type',
+                content: 'website',
+            },
+            {
+                hid: 'author',
+                name: 'author',
+                content: 'Spin Interactive',
+            },
+            {
+                hid: 'google-site-verification',
+                name: 'google-site-verification',
+                content: 'UkwLcwRj1RBzkC9in7Fi0GZFIwUnzGN5rzPYxxLpAJI',
+            },
+        ],
+        script: [
+            {
+                type: 'text/javascript',
+                id: 'hs-script-loader',
+                async: true,
+                defer: true,
+                src: '//js-eu1.hs-scripts.com/25446524.js',
+            },
         ],
     },
 
@@ -79,9 +111,6 @@ export default {
             lang: 'scss',
         },
     ],
-
-    // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-    plugins: [{ src: '~/plugins/gtm' }],
 
     // Auto import components: https://go.nuxtjs.dev/config-components
     components: true,
@@ -122,6 +151,8 @@ export default {
         '@nuxtjs/sitemap',
         // https://image.nuxtjs.org
         '@nuxt/image',
+        // https://github.com/nuxt-community/redirect-module
+        '@nuxtjs/redirect-module',
     ],
 
     // Style resources
@@ -156,6 +187,10 @@ export default {
         },
     },
 
+    render: {
+        asyncScripts: true,
+    },
+
     gtm: {
         enabled: process.env.GTM_ENABLE !== 'false', // true pour pusher les events vers GTM
         debug: process.env.GTM_DEBUG !== 'false', // true pour activer le debug GTM
@@ -174,4 +209,28 @@ export default {
     },
 
     sitemap: sitemapGenerator,
+
+    /**
+     * Permet d'ajouter des redirections
+     * @returns {Promise<*[]>}
+     */
+    redirect: async () => {
+        let redirects = []
+        try {
+            // On fait notre appel API pour récupérer les redirections
+            const { data } = await createAxios.get('redirects')
+            // On les parcourt et on les retourne comme on le souhaite
+            redirects = data.redirects.map(el => {
+                return {
+                    from: `^${el.origin}$`,
+                    to: el.target,
+                    statusCode: el.type,
+                }
+            })
+        } catch (err) {
+            console.error('Error when trying to get redirects from API')
+        }
+        // On fusionne les redirections depuis notre générateur et celles venant de l'API
+        return [...redirectGenerator, ...redirects]
+    },
 }

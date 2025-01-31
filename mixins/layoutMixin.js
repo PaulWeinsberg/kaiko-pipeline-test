@@ -1,11 +1,15 @@
 import { mapState } from 'vuex'
+import { scrollTo } from '@spin-interactive/js-core'
 
 // lastTouchTime is used for ignoring emulated mousemove events
 let lastTouchTime = 0
 
 export default {
     head() {
-        const { seo } = this
+        const { seo, options } = this
+        const { headband_text } = options
+        const htmlClass = []
+        if (headband_text) htmlClass.push('has-upon-menu')
 
         return {
             title: seo.title,
@@ -23,6 +27,9 @@ export default {
                     href: seo.favicon,
                 },
             ],
+            htmlAttrs: {
+                class: htmlClass.join(' '),
+            },
         }
     },
     data: () => ({
@@ -36,9 +43,11 @@ export default {
     computed: {
         ...mapState({
             seo: state => state.seo.seo,
+            options: state => state.options.options,
         }),
     },
     mounted() {
+        window.addEventListener('load', this.onLoadWindowScrollToHash)
         this.setWindowsWidth()
         window.addEventListener('resize', this.setWindowsWidth)
         this.onFullScreenChangeAddEvents()
@@ -46,6 +55,7 @@ export default {
         this.watchForHover()
     },
     destroyed() {
+        window.removeEventListener('load', this.onLoadWindowScrollToHash)
         this.onFullScreenChangeRemoveEvents()
         document.removeEventListener(
             'touchstart',
@@ -56,6 +66,16 @@ export default {
         document.removeEventListener('mousemove', this.enableHover, true)
     },
     methods: {
+        /**
+         * Permet de lancer des fonctions lors du load de la fenêtre
+         */
+        onLoadWindowScrollToHash() {
+            const hash = window.location.hash.substring(1)
+            if (!hash) return
+            scrollTo(`#${hash}`, {
+                toVars: { duration: 0 },
+            })
+        },
         /**
          * Permet de set la taille de l'écran au resize
          */

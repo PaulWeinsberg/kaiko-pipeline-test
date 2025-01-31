@@ -2,7 +2,7 @@ import { mapState } from 'vuex'
 
 export default {
     head() {
-        const { page, globalSeo } = this
+        const { page, globalSeo, $route } = this
 
         if (!page || !page.seo) return {}
 
@@ -11,7 +11,16 @@ export default {
 
         let title = seo.title
 
-        if (title && !title.includes(globalSeo.title)) {
+        const hasGlobalSeo = title.includes(globalSeo.title)
+
+        if ($route.query.page && $route.query.page !== 1) {
+            title = title.replace(
+                ` - ${globalSeo.title}`,
+                ` - Page ${$route.query.page} - ${globalSeo.title}`
+            )
+        }
+
+        if (title && !hasGlobalSeo) {
             title += ` - ${globalSeo.title}`
         }
 
@@ -96,7 +105,7 @@ export default {
                 _facebook.push({
                     hid: 'og:image',
                     property: 'og:image',
-                    content: `${this.$config.uploadsUrl}${facebook.image}`,
+                    content: facebook.image,
                 })
             }
 
@@ -129,7 +138,7 @@ export default {
                 _twitter.push({
                     hid: 'twitter:image',
                     property: 'twitter:image',
-                    content: `${this.$config.uploadsUrl}${twitter.image}`,
+                    content: twitter.image,
                 })
             }
 

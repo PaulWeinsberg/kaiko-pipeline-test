@@ -30,6 +30,11 @@ To deploy, you need to have:
 
 And there you have it, you can now access the WebApp.
 
+## Générer un fichier de redirections
+```$ yarn redirect:generate [NOM_DU_CSV] [NOM_DU_FICHIER]```
+
+Importer ensuite votre fichier dans `./redirects/index.js`
+
 ## DEPLOY
 * **Test**
 * Using the deployer
