@@ -34,10 +34,10 @@ jobs:
                   echo "::set-output name=binary::${APP}-${VERSION}"
               env:
                   GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-                  NODE_ENV: preprod
-                  BASE_URL: https://www.kaiko.ovh/
-                  WP_URL: https://web-bo-i.kaiko.ovh/
-                  API_URL: https://web-bo-i.kaiko.ovh/wp-json/spin-api/
+                  NODE_ENV: prod
+                  BASE_URL: https://www.kaiko.com/
+                  WP_URL: https://web-bo-i.kaiko.com/
+                  API_URL: https://web-bo-i.kaiko.com/wp-json/spin-api/
                   API_KEY: '-)<X[4J9Y!zxam;S'
             - name: Release
               uses: softprops/action-gh-release@v2
