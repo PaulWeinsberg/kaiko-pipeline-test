@@ -17,7 +17,7 @@ Kaiko - Nuxt | Showcase site
 To launch the project, you must have:
 
 * [Yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
-* [Node](https://nodejs.org/fr/) >= 14.17.0
+* [Node](https://nodejs.org/fr/) >= 20.11.0
 
 To deploy, you need to have:
 
