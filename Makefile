@@ -1,5 +1,5 @@
 UIDGID          = $(shell id -u):$(shell id -g)
-NODE_VERSION    = 18-alpine
+NODE_VERSION    = 20-alpine
 BUILDDIR       ?= .
 WORKDIR         = /app
 VERSION        ?= HEAD
