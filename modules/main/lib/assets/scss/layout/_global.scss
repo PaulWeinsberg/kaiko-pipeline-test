@@ -1,0 +1,95 @@
+html {
+    font-size: var(--baseFont);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--fontPrimary);
+    background: var(--white-100);
+    color: var(--midnight-blue-700);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    font-weight: 400;
+    font-size: 0.8rem;
+    line-height: 160%;
+    #__nuxt,
+    #__layout,
+    #app {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        width: 100%;
+    }
+    li {
+        font-size: inherit;
+    }
+    .b- {
+        &white-100 {
+            color: var(--midnight-blue-700);
+            background-color: var(--white-100);
+        }
+        &black-900 {
+            color: var(--white-100);
+            background-color: var(--black-900);
+        }
+        &gradient-blue-100 {
+            color: var(--midnight-blue-700);
+            background: var(--gradient-blue-100);
+        }
+        &gradient-grey-100 {
+            color: var(--midnight-blue-700);
+            background: var(--gradient-grey-100);
+        }
+        &midnight-blue-700 {
+            color: var(--white-100);
+            background-color: var(--midnight-blue-700);
+        }
+    }
+    .c- {
+        &white-100 {
+            color: var(--white-100);
+        }
+        &sunflower-700 {
+            color: var(--sunflower-700);
+        }
+        &midnight-blue-500 {
+            color: var(--midnight-blue-500);
+        }
+        &midnight-blue-700 {
+            color: var(--midnight-blue-700);
+        }
+        &black-900 {
+            color: var(--black-900);
+        }
+        &electric-blue-700 {
+            color: var(--electric-blue-700);
+        }
+    }
+    b,
+    strong,
+    .bold {
+        font-weight: bold;
+    }
+    i,
+    .italic {
+        font-style: italic;
+    }
+    .invisible {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+    &.has-hover {
+        * {
+            &:focus {
+                outline: none;
+            }
+        }
+    }
+    &.no-scroll {
+        overflow: hidden;
+    }
+}

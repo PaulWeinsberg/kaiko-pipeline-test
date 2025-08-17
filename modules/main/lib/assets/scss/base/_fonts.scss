@@ -1,0 +1,45 @@
+// Fonts
+@include font-face(
+    'Icons',
+    '~/modules/main/lib/assets/fonts/icons/icons',
+    300,
+    'normal',
+    'no_woff2'
+);
+//// IBM Plex Sans
+@include font-face(
+    'IBM Plex Sans',
+    '~/modules/main/lib/assets/fonts/ibmplexsans/thin/ibmplexsans-thin',
+    100,
+    'normal'
+);
+@include font-face(
+    'IBM Plex Sans',
+    '~/modules/main/lib/assets/fonts/ibmplexsans/light/ibmplexsans-light',
+    300,
+    'normal'
+);
+@include font-face(
+    'IBM Plex Sans',
+    '~/modules/main/lib/assets/fonts/ibmplexsans/regular/ibmplexsans-regular',
+    400,
+    'normal'
+);
+@include font-face(
+    'IBM Plex Sans',
+    '~/modules/main/lib/assets/fonts/ibmplexsans/medium/ibmplexsans-medium',
+    500,
+    'normal'
+);
+@include font-face(
+    'IBM Plex Sans',
+    '~/modules/main/lib/assets/fonts/ibmplexsans/semibold/ibmplexsans-semibold',
+    600,
+    'normal'
+);
+@include font-face(
+    'IBM Plex Sans',
+    '~/modules/main/lib/assets/fonts/ibmplexsans/bold/ibmplexsans-bold',
+    700,
+    'normal'
+);
