@@ -8,7 +8,7 @@
     export default {
         name: 'BaseRoute',
         mixins: [seoMixin],
-        async asyncData({ $api, route, error, $queryString }) {
+        async asyncData({ $api, route, error, $queryString, redirect }) {
             const params = { ...route.params, ...route.query }
             if (params && params.preview) {
                 delete params.preview_nonce
@@ -28,10 +28,16 @@
                     data = { ...data, ...response }
                 },
                 onError: err => {
-                    return error({
-                        statusCode: err.status,
-                        message: err.statusText,
-                    })
+                    switch (err.status) {
+                        case 301: return redirect(
+                            err.response.data.redirect.type,
+                            err.response.data.redirect.target
+                        );
+                        default: return error({
+                            statusCode: err.status,
+                            message: err.statusText
+                        })
+                    }
                 },
             })
 
