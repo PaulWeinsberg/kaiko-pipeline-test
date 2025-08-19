@@ -40,6 +40,16 @@ export default {
 
         const specificMeta = [...(this.meta || []), ...(seo.metas || [])]
 
+        // Add robots meta tags
+        if (seo.robots) {
+            const robotsContent = Object.values(seo.robots).join(', ');
+            specificMeta.push({
+                hid: 'robots',
+                name: 'robots',
+                content: robotsContent,
+            });
+        }
+
         let schemas = {}
         if (seo.schema) {
             schemas = {
