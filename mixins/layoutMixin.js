@@ -1,5 +1,5 @@
 import { mapState } from 'vuex'
-import { scrollTo } from '@spin-interactive/js-core'
+import { scrollTo } from '../modules/main/lib/core'
 
 // lastTouchTime is used for ignoring emulated mousemove events
 let lastTouchTime = 0

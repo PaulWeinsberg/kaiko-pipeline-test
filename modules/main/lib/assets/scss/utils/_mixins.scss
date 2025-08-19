@@ -1,0 +1,134 @@
+@use 'sass:selector';
+@use 'sass:string';
+@use 'sass:map';
+@use 'sass:color';
+@use 'sass:list';
+@use 'sass:meta';
+// Permet de savoir si le parent principal à une class
+@mixin parent-has-class($class) {
+    @each $selector in & {
+        $l: list.length($selector) + 1;
+        $path: '';
+        @for $i from 1 to $l {
+            @if ($i == 1) {
+                $path: #{selector.unify(list.nth($selector, $i), $class)};
+            } @else {
+                $path: list.append($path, list.nth($selector, $i));
+            }
+        }
+        @at-root #{$path} {
+            @content;
+        }
+    }
+}
+
+// Permet de savoir si le parent principal à une class
+@mixin parent-has-tag($tag, $j: 1) {
+    @each $selector in & {
+        $l: list.length($selector) + 1;
+        $path: '';
+        @for $i from 1 to $l {
+            @if ($i == $j) {
+                $path: #{selector.unify($tag, list.nth($selector, $i))};
+            } @else {
+                $path: list.append($path, list.nth($selector, $i));
+            }
+        }
+        @at-root #{$path} {
+            @content;
+        }
+    }
+}
+
+@mixin font-face($name, $path, $weight: null, $style: null, $type: 'typo') {
+    @if ($type == 'no_svg') {
+        @font-face {
+            font-family: $name;
+            font-style: $style;
+            font-weight: $weight;
+            font-display: swap;
+            src: url($path + '.eot') format('embedded-opentype'),
+                url($path + '.woff2') format('woff2'),
+                url($path + '.woff') format('woff'),
+                url($path + '.ttf') format('truetype');
+        }
+    } @else if ($type == 'typo') {
+        @font-face {
+            font-family: $name;
+            font-style: $style;
+            font-weight: $weight;
+            font-display: swap;
+            src: url($path + '.eot') format('embedded-opentype'),
+                url($path + '.woff2') format('woff2'),
+                url($path + '.woff') format('woff'),
+                url($path + '.ttf') format('truetype'),
+                url($path + '.svg') format('svg');
+        }
+    } @else if ($type == 'no_woff2') {
+        @font-face {
+            font-family: $name;
+            font-style: $style;
+            font-weight: $weight;
+            font-display: swap;
+            src: url($path + '.eot') format('embedded-opentype'),
+                url($path + '.woff') format('woff'),
+                url($path + '.ttf') format('truetype'),
+                url($path + '.svg') format('svg');
+        }
+    } @else if ($type == 'only_woff') {
+        @font-face {
+            font-family: $name;
+            font-style: $style;
+            font-weight: $weight;
+            font-display: swap;
+            src: url($path + '.woff') format('woff');
+        }
+    }
+}
+
+@function hexToRGB($hex) {
+    @return color.channel($hex, "red", $space: rgb), color.channel($hex, "green", $space: rgb), color.channel($hex, "blue", $space: rgb);
+}
+
+@function transform-number-to-string($value) {
+    @if meta.type-of($value) == 'number' {
+        @return #{$value};
+    } @else if meta.type-of($value) == 'string' {
+        @return $value;
+    } @else {
+        @error 'Input #{$value} is no number or string';
+    }
+}
+
+@function to-number($value) {
+    $value: transform-number-to-string($value);
+    $result: 0;
+    $digits: 0;
+    $minus: string.slice($value, 1, 1) == '-';
+    $numbers: (
+        '0': 0,
+        '1': 1,
+        '2': 2,
+        '3': 3,
+        '4': 4,
+        '5': 5,
+        '6': 6,
+        '7': 7,
+        '8': 8,
+        '9': 9,
+    );
+    @for $i from if($minus, 2, 1) through string.length($value) {
+        $character: string.slice($value, $i, $i);
+        @if (list.index(map.keys($numbers), $character) or $character == '.') {
+            @if $character == '.' {
+                $digits: 1;
+            } @else if $digits == 0 {
+                $result: $result * 10 + map.get($numbers, $character);
+            } @else {
+                $digits: $digits * 10;
+                $result: $result + map.get($numbers, $character) / $digits;
+            }
+        }
+    }
+    @return if($minus, -$result, $result);
+}

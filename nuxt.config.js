@@ -103,11 +103,11 @@ export default {
     // Global CSS: https://go.nuxtjs.dev/config-css
     css: [
         {
-            src: '@spin-interactive/spikotify/lib/assets/scss/main.scss',
+            src: '~/modules/main/lib/assets/scss/main.scss',
             lang: 'scss',
         },
         {
-            src: '@spin-interactive/spikotify/lib/assets/scss/base/_fonts.scss',
+            src: '~/modules/main/lib/assets/scss/base/_fonts.scss',
             lang: 'scss',
         },
     ],
@@ -126,7 +126,7 @@ export default {
     // Modules: https://go.nuxtjs.dev/config-modules
     modules: [
         // Laisser en premier
-        '@spin-interactive/spikotify',
+        '~/modules/main',
         // https://www.npmjs.com/package/nuxt-basic-auth-module
         'nuxt-basic-auth-module',
         // https://go.nuxtjs.dev/axios
@@ -158,9 +158,9 @@ export default {
     // Style resources
     styleResources: {
         scss: [
-            '@spin-interactive/spikotify/lib/assets/scss/utils/_mixins.scss',
-            '@spin-interactive/spikotify/lib/assets/scss/utils/_placeholdersSelectors.scss',
-            '@spin-interactive/spikotify/lib/assets/scss/utils/_variables.scss',
+            '~/modules/main/lib/assets/scss/utils/_mixins.scss',
+            '~/modules/main/lib/assets/scss/utils/_placeholdersSelectors.scss',
+            '~/modules/main/lib/assets/scss/utils/_variables.scss',
         ],
     },
 
@@ -181,7 +181,15 @@ export default {
             'gsap',
             'axios',
         ],
-        loaders: { scss: { sourceMap: false } },
+        loaders: {
+            scss: {
+                sourceMap: false,
+                sassOptions: {
+                    quietDeps: true,
+                    silenceDeprecations: ['import', 'legacy-js-api'],
+                },
+            }
+        },
         extend(config) {
             config.resolve.alias.vue = 'vue/dist/vue.common'
         },
@@ -200,7 +208,7 @@ export default {
     },
 
     router: {
-        middleware: ['trailingSlashRedirect'],
+        middleware: ['sitemapMiddleware', 'trailingSlashRedirect'],
     },
 
     server: {

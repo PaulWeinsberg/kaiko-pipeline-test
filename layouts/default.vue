@@ -7,7 +7,7 @@
             :footer="footer.items"
             :sub-footer="subFooter"
             :options="options"
-            :social-medias="footer.custom_fields.social_medias"
+            :social-medias="footer.custom_fields.social_medias || []"
         />
     </div>
 </template>

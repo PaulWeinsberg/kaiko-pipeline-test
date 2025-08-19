@@ -96,7 +96,3 @@ sw.*
 /keys/
 *.key
 *.pub
-
-# Locked
-*.lock
-package-lock.json
