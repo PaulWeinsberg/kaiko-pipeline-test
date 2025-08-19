@@ -12,6 +12,8 @@ COPY nuxt.config.js nuxt.config.js
 
 COPY static static
 
+COPY modules modules
+
 COPY utils utils
 
 COPY redirects redirects
