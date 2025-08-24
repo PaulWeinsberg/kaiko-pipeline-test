@@ -150,9 +150,7 @@ export default {
         // https://sitemap.nuxtjs.org/fr
         '@nuxtjs/sitemap',
         // https://image.nuxtjs.org
-        '@nuxt/image',
-        // https://github.com/nuxt-community/redirect-module
-        '@nuxtjs/redirect-module',
+        '@nuxt/image'
     ],
 
     // Style resources
