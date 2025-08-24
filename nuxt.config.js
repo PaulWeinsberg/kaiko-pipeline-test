@@ -218,27 +218,8 @@ export default {
 
     sitemap: sitemapGenerator,
 
-    /**
-     * Permet d'ajouter des redirections
-     * @returns {Promise<*[]>}
-     */
-    redirect: async () => {
-        let redirects = []
-        try {
-            // On fait notre appel API pour récupérer les redirections
-            const { data } = await createAxios.get('redirects')
-            // On les parcourt et on les retourne comme on le souhaite
-            redirects = data.redirects.map(el => {
-                return {
-                    from: `^${el.origin}$`,
-                    to: el.target,
-                    statusCode: el.type,
-                }
-            })
-        } catch (err) {
-            console.error('Error when trying to get redirects from API')
-        }
-        // On fusionne les redirections depuis notre générateur et celles venant de l'API
-        return [...redirectGenerator, ...redirects]
-    },
+    serverMiddleware: [
+        '~/middleware/redirects'
+    ]
+
 }
