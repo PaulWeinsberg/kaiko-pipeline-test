@@ -9,7 +9,6 @@
             />
         </SIWrapper>
         <SubMenuFooter v-if="subFooter" :sub-footer="subFooter" />
-        <SISignature />
     </footer>
 </template>
 

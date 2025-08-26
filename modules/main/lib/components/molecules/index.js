@@ -3,7 +3,6 @@ import SIImage from './SIImage.vue'
 import SIWys from './SIWys.vue'
 import HubspotBase from './HubspotBase.vue'
 import DateText from './DateText.vue'
-import SISignature from './SISignature.vue'
 import SIPagination from './SIPagination.vue'
 import SICheckbox from './SICheckbox.vue'
 import SICheckboxItem from './SICheckboxItem.vue'
@@ -66,7 +65,6 @@ export default {
     HubspotBase,
     SIWys,
     SIImage,
-    SISignature,
     SICheckbox,
     SICheckboxItem,
     SIRadio,
