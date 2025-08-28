@@ -245,6 +245,7 @@ export default {
                 const routeSet = new Set()
                 // Always include home
                 routeSet.add('/')
+                routeSet.add('/404')
 
                 /* -----------------------------
                  * 1. Collect routes from WP sitemaps (existing behaviour)
