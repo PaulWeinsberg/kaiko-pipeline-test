@@ -9,12 +9,15 @@ export const sitemapGenerator = async () => {
             return el[1]
         })
 
-        const sitemapsReturn = [
+    const hostname = (process.env.BASE_URL || process.env.SITE_URL || process.env.WP_URL || '').replace(/\/$/, '')
+
+    const sitemapsReturn = [
             {
                 cacheTime: false,
                 path: '/sitemap.xml',
                 routes: [],
                 exclude: ['/**'],
+        hostname,
             },
         ]
 
@@ -34,6 +37,7 @@ export const sitemapGenerator = async () => {
                     path: route,
                     routes,
                     exclude: route.includes('page-sitemap') ? [] : ['/**'],
+                    hostname,
                 }
             } catch (err) {
                 console.error(err)

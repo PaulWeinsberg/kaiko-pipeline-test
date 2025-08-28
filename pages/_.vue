@@ -41,9 +41,13 @@
                 },
             })
 
+            const page = data.page ? { ...data.page } : {}
+            if (!page.content) page.content = { design: {} }
+            else if (!page.content.design) page.content.design = {}
+
             return {
-                page: data.page ?? {},
-                template: data?.page?.infos?.template,
+                page,
+                template: page?.infos?.template,
             }
         },
     }

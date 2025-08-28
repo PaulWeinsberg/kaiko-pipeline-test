@@ -15,6 +15,8 @@ const createAxios = axios.create({
 })
 
 export default {
+    // Enable full static generation for Cloudflare Pages
+    target: 'static',
     // https://github.com/ktquez/vue-head
     head: {
         title: 'Kaiko',
@@ -216,8 +218,57 @@ export default {
 
     sitemap: sitemapGenerator,
 
-    serverMiddleware: [
-        '~/middleware/redirects'
-    ]
+    // Redirect handling is done via Cloudflare _redirects file on static deploys
+    serverMiddleware: process.env.STATIC_DEPLOY === 'true' || process.env.CF_PAGES === 'true'
+        ? []
+        : [
+            '~/middleware/redirects'
+        ],
+
+    // Static generation configuration
+    generate: {
+        crawler: false, // we'll explicitly list routes
+        fallback: '200.html', // SPA-style fallback; Cloudflare serves 404.html if missing
+        routes: async () => {
+            try {
+                if (!process.env.WP_URL) return []
+                const root = `${process.env.WP_URL}/sitemap.xml`
+                const { data: rootXml } = await axios.get(root)
+                const regexLoc = /<loc>([^<]*)<\/loc>/gm
+                const extractLocs = xml => [...xml.matchAll(regexLoc)].map(m => m[1])
+                const subSitemaps = extractLocs(rootXml)
+                    .filter(u => /sitemap.*\.xml$/i.test(u))
+
+                const routeSet = new Set()
+                // Always include home and search page (client side)
+                routeSet.add('/')
+                routeSet.add('/s')
+
+                for (const sm of subSitemaps) {
+                    try {
+                        const { data: smXml } = await axios.get(sm)
+                        const locs = extractLocs(smXml)
+                        locs.forEach(fullUrl => {
+                            if (!fullUrl.startsWith(process.env.WP_URL)) return
+                            let route = fullUrl.replace(process.env.WP_URL, '') || '/'
+                            // Normalize: ensure leading slash, remove domain duplication, strip query
+                            if (!route.startsWith('/')) route = `/${route}`
+                            route = route.split('?')[0]
+                            // Remove possible trailing slashes duplicates (keep single trailing slash if present originally?)
+                            // Nuxt pages seem to work without enforcing trailing slash; keep as-is
+                            routeSet.add(route)
+                        })
+                    } catch (e) {
+                        console.error('Failed to parse sub-sitemap', sm, e.message)
+                    }
+                }
+
+                return [...routeSet]
+            } catch (err) {
+                console.error('Error while generating routes from WP sitemap', err.message)
+                return []
+            }
+        }
+    }
 
 }
