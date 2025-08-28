@@ -340,6 +340,45 @@ export default {
 
                 // (Stray loop removed)
 
+                /* -----------------------------
+                 * 3. Add redirect target routes (so destinations always have a prerendered page)
+                 * We do NOT generate pages for redirect sources; Cloudflare handles those via _redirects.
+                 * Local redirects come from redirectGenerator; API redirects (if available) fetched live.
+                 * ---------------------------- */
+                try {
+                    const { redirectGenerator } = require('./redirects')
+                    const addTarget = (to) => {
+                        if (!to || typeof to !== 'string') return
+                        // external absolute URL -> skip (served elsewhere)
+                        if (/^https?:\/\//i.test(to)) return
+                        let route = to
+                        // Normalize fragment / query
+                        route = route.split('#')[0].split('?')[0] || '/'
+                        if (!route.startsWith('/')) route = '/' + route
+                        if (route === '/s') return
+                        routeSet.add(route)
+                    }
+                    if (Array.isArray(redirectGenerator)) {
+                        for (const r of redirectGenerator) addTarget(r.to)
+                    }
+                    // Fetch API redirects if env present (same shape as script expectation)
+                    if (process.env.API_URL && process.env.API_KEY) {
+                        try {
+                            const apiBase = process.env.API_URL.replace(/\/$/, '')
+                            const { data } = await axios.get(apiBase + '/redirects', {
+                                headers: { 'X-Auth-Token': process.env.API_KEY }
+                            })
+                            if (data && Array.isArray(data.redirects)) {
+                                for (const r of data.redirects) addTarget(r.target)
+                            }
+                        } catch (e) {
+                            if (process.env.DEBUG_ROUTES === 'true') console.warn('[generate][redirects-api] skip', e.message)
+                        }
+                    }
+                } catch (e) {
+                    if (process.env.DEBUG_ROUTES === 'true') console.warn('[generate][redirect-targets] failed', e.message)
+                }
+
                 // Derive and include parent segments (same logic; now applies to API + sitemap routes)
                 const parentsToAdd = new Set()
                 for (const r of routeSet) {
