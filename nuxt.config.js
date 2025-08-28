@@ -253,6 +253,9 @@ export default {
                 const routeSet = new Set()
                 // Always include home page. Search page '/s' is excluded from prerender (client-only SPA)
                 routeSet.add('/')
+                // Explicitly include '/products' so static hosting does not show raw directory listing.
+                // This path is handled by the catch-all page component (`pages/_.vue`) at runtime.
+                routeSet.add('/products')
 
                 for (const sm of subSitemaps) {
                     try {

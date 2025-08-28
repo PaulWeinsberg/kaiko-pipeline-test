@@ -69,7 +69,11 @@ Set these in the Cloudflare Pages project settings (Environment Variables):
 * Any Axeptio / GTM related vars already present locally
 
 ### Redirects
-`scripts/generate-cloudflare-redirects.js` creates a `_redirects` file inside `dist` from the existing redirect configuration. Update `redirects/index.js` to add new rules, then rebuild.
+`scripts/generate-cloudflare-redirects.js` creates a `_redirects` file inside `dist` from:
+1. Local static lists in `redirects/` (edit `redirects/list/*.js` and aggregate in `redirects/index.js`).
+2. Remote API redirects (`GET ${API_URL}/redirects`) when `API_URL` and `API_KEY` are set at build time.
+
+Simple anchored patterns like `^/old-path$` are converted to Cloudflare format. More complex regex are skipped (add them manually to `dist/_redirects` post-build if required). API rules override local ones with the same `from` pattern.
 
 ### 404 Handling
 Cloudflare will serve `404.html` automatically for missing routes. A custom static `static/404.html` file has been added. A `200.html` fallback is produced by Nuxt for SPA behaviour (`generate.fallback`).
