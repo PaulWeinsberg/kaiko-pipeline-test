@@ -242,42 +242,119 @@ export default {
     exclude: [/^\/s$/], // search page rendered client-side only
         routes: async () => {
             try {
-                if (!process.env.WP_URL) return []
-                const root = `${process.env.WP_URL}/sitemap.xml`
-                const { data: rootXml } = await axios.get(root)
-                const regexLoc = /<loc>([^<]*)<\/loc>/gm
-                const extractLocs = xml => [...xml.matchAll(regexLoc)].map(m => m[1])
-                const subSitemaps = extractLocs(rootXml)
-                    .filter(u => /sitemap.*\.xml$/i.test(u))
-
                 const routeSet = new Set()
-                // Always include home page. Search page '/s' is excluded from prerender (client-only SPA)
+                // Always include home
                 routeSet.add('/')
-                // Explicitly include '/products' so static hosting does not show raw directory listing.
-                // This path is handled by the catch-all page component (`pages/_.vue`) at runtime.
-                routeSet.add('/products')
 
-                for (const sm of subSitemaps) {
+                /* -----------------------------
+                 * 1. Collect routes from WP sitemaps (existing behaviour)
+                 * ---------------------------- */
+                if (process.env.WP_URL) {
                     try {
-                        const { data: smXml } = await axios.get(sm)
-                        const locs = extractLocs(smXml)
-                        locs.forEach(fullUrl => {
-                            if (!fullUrl.startsWith(process.env.WP_URL)) return
-                            let route = fullUrl.replace(process.env.WP_URL, '') || '/'
-                            // Normalize: ensure leading slash, remove domain duplication, strip query
-                            if (!route.startsWith('/')) route = `/${route}`
-                            route = route.split('?')[0]
-                            if (route === '/s') return // exclude search page from prerender
-                            // Remove possible trailing slashes duplicates (keep single trailing slash if present originally?)
-                            // Nuxt pages seem to work without enforcing trailing slash; keep as-is
-                            routeSet.add(route)
-                        })
+                        const root = `${process.env.WP_URL}/sitemap.xml`
+                        const { data: rootXml } = await axios.get(root)
+                        const regexLoc = /<loc>([^<]*)<\/loc>/gm
+                        const extractLocs = xml => [...xml.matchAll(regexLoc)].map(m => m[1])
+                        const subSitemaps = extractLocs(rootXml).filter(u => /sitemap.*\.xml$/i.test(u))
+                        for (const sm of subSitemaps) {
+                            try {
+                                const { data: smXml } = await axios.get(sm)
+                                const locs = extractLocs(smXml)
+                                locs.forEach(fullUrl => {
+                                    if (!fullUrl.startsWith(process.env.WP_URL)) return
+                                    let route = fullUrl.replace(process.env.WP_URL, '') || '/'
+                                    if (!route.startsWith('/')) route = `/${route}`
+                                    route = route.split('?')[0]
+                                    if (route === '/s') return
+                                    routeSet.add(route)
+                                })
+                            } catch (e) {
+                                console.error('[generate] Failed sub-sitemap', sm, e.message)
+                            }
+                        }
                     } catch (e) {
-                        console.error('Failed to parse sub-sitemap', sm, e.message)
+                        console.error('[generate] Sitemap root fetch failed', e.message)
                     }
                 }
 
-                return [...routeSet]
+                /* -----------------------------
+                 * 2. Discover additional routes via authenticated API (spin-api)
+                 * We dynamically inspect the API root and attempt to fetch list endpoints.
+                 * Endpoints returning an object with a `list` array containing `url` fields
+                 * will have those URLs transformed into paths and added.
+                 * ---------------------------- */
+                if (process.env.API_URL && process.env.API_KEY) {
+                    try {
+                        const apiBase = process.env.API_URL.replace(/\/$/, '')
+                        const apiRootUrl = apiBase
+                        const { data: apiRoot } = await axios.get(apiRootUrl, {
+                            headers: { 'X-Auth-Token': process.env.API_KEY }
+                        })
+                        const apiRoutes = apiRoot?.routes ? Object.keys(apiRoot.routes) : []
+                        // Candidate endpoints: exclude base, redirects, search (handled client-side), sitemap duplicates
+                        const blacklist = new Set(['/spin-api', '/spin-api/base', '/spin-api/redirects', '/spin-api/search'])
+                        const candidates = apiRoutes.filter(r => r.startsWith('/spin-api/') && !blacklist.has(r))
+                        for (const r of candidates) {
+                            const endpoint = r.replace('/spin-api/', '')
+                            const listUrl = `${apiBase}/${endpoint}?per_page=100`
+                            try {
+                                const { data } = await axios.get(listUrl, {
+                                    headers: { 'X-Auth-Token': process.env.API_KEY }
+                                })
+                                // Common shapes: { list: [...] } or an array itself
+                                let items = []
+                                if (Array.isArray(data)) items = data
+                                else if (Array.isArray(data.list)) items = data.list
+                                // Accept objects with 'url' or 'link'
+                                for (const item of items) {
+                                    const fullUrl = item?.url || item?.link
+                                    if (!fullUrl || typeof fullUrl !== 'string') continue
+                                    try {
+                                        let route
+                                        if (fullUrl.startsWith('http')) {
+                                            // Only include if matches BASE_URL or public site
+                                            const publicOrigin = (process.env.BASE_URL || '').replace(/\/$/, '')
+                                            if (publicOrigin && !fullUrl.startsWith(publicOrigin)) continue
+                                            route = fullUrl.replace(publicOrigin, '') || '/'
+                                        } else {
+                                            route = fullUrl
+                                        }
+                                        if (!route.startsWith('/')) route = `/${route}`
+                                        route = route.split('?')[0]
+                                        if (route === '/s') continue
+                                        routeSet.add(route)
+                                    } catch (_) { /* ignore malformed */ }
+                                }
+                            } catch (e) {
+                                // Silently skip endpoints not supporting listing
+                                if (process.env.DEBUG_ROUTES === 'true') {
+                                    console.warn('[generate][api-skip]', endpoint, e.message)
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error('[generate] API discovery failed', e.message)
+                    }
+                }
+
+                // (Stray loop removed)
+
+                // Derive and include parent segments (same logic; now applies to API + sitemap routes)
+                const parentsToAdd = new Set()
+                for (const r of routeSet) {
+                    if (!r || r === '/' || !r.startsWith('/')) continue
+                    const parts = r.split('/').filter(Boolean)
+                    let accum = ''
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        accum += '/' + parts[i]
+                        if (accum === '/s') continue
+                        parentsToAdd.add(accum)
+                    }
+                }
+                for (const p of parentsToAdd) routeSet.add(p)
+
+                // Return sorted list (shorter paths first) for determinism
+                return [...routeSet].sort((a,b) => a.localeCompare(b))
             } catch (err) {
                 console.error('Error while generating routes from WP sitemap', err.message)
                 return []
