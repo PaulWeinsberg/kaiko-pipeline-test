@@ -1,7 +1,7 @@
 <template>
     <transition appear @enter="$animations.fadeIn" @leave="$animations.fadeOut">
         <SISection v-show="open" id="base-mega-menu">
-            <MegaMenuBody :items="header.items" />
+            <MegaMenuBody :items="(header && header.items) ? header.items : []" />
             <MegaMenuFooter
                 v-if="footerItems && footerItems.length"
                 :items="footerItems"
@@ -28,8 +28,8 @@
                 header: state => state.menu.menu,
             }),
             footerItems() {
-                const { header } = this
-                const { custom_fields } = header
+                const header = this.header || {}
+                const custom_fields = header.custom_fields || null
                 if (!custom_fields) return null
                 return custom_fields.buttons || null
             },

@@ -88,21 +88,20 @@
                 return [{ open }, { 'has-mega-menu': hasMegaMenu }]
             },
             buttons() {
-                const { header } = this
-                const { custom_fields } = header
+                const header = this.header || {}
+                const custom_fields = header.custom_fields || null
                 if (!custom_fields) return null
                 return custom_fields.buttons || null
             },
             headerItems() {
-                const { header, headerItemsRemoved } = this
-                const items = [...header.items]
-
-                return items.map(item => {
-                    return {
-                        ...item,
-                        hide: headerItemsRemoved.includes(item.id),
-                    }
-                })
+                const header = this.header || { items: [] }
+                const { headerItemsRemoved } = this
+                const baseItems = Array.isArray(header.items) ? header.items : []
+                const items = [...baseItems]
+                return items.map(item => ({
+                    ...item,
+                    hide: headerItemsRemoved.includes(item.id),
+                }))
             },
         },
         mounted() {

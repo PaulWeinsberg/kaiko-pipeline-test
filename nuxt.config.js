@@ -155,6 +155,16 @@ export default {
         '@nuxt/image'
     ],
 
+    // Nuxt image configuration optimized for static hosting on Cloudflare Pages
+    image: {
+        // Use static provider so that images are processed at build time and emitted to /_nuxt
+        provider: 'static',
+        // You can whitelist external domains here if <nuxt-image> points to remote assets
+        domains: process.env.IMAGE_DOMAINS ? process.env.IMAGE_DOMAINS.split(',').map(d => d.trim()) : [],
+        // Disable sharp optimisations that would otherwise require a Node server runtime
+        sharp: false,
+    },
+
     // Style resources
     styleResources: {
         scss: [
@@ -229,6 +239,7 @@ export default {
     generate: {
         crawler: false, // we'll explicitly list routes
         fallback: '200.html', // SPA-style fallback; Cloudflare serves 404.html if missing
+    exclude: [/^\/s$/], // search page rendered client-side only
         routes: async () => {
             try {
                 if (!process.env.WP_URL) return []
@@ -240,9 +251,8 @@ export default {
                     .filter(u => /sitemap.*\.xml$/i.test(u))
 
                 const routeSet = new Set()
-                // Always include home and search page (client side)
+                // Always include home page. Search page '/s' is excluded from prerender (client-only SPA)
                 routeSet.add('/')
-                routeSet.add('/s')
 
                 for (const sm of subSitemaps) {
                     try {
@@ -254,6 +264,7 @@ export default {
                             // Normalize: ensure leading slash, remove domain duplication, strip query
                             if (!route.startsWith('/')) route = `/${route}`
                             route = route.split('?')[0]
+                            if (route === '/s') return // exclude search page from prerender
                             // Remove possible trailing slashes duplicates (keep single trailing slash if present originally?)
                             // Nuxt pages seem to work without enforcing trailing slash; keep as-is
                             routeSet.add(route)

@@ -43,6 +43,42 @@ Importer ensuite votre fichier dans `./redirects/index.js`
 * **Prod**
 * Using the deployer
 
+## Cloudflare Pages (Static Deployment)
+This project can be exported as a fully static site (consuming the remote WordPress API at runtime from the browser) and deployed on Cloudflare Pages.
+
+### Build command
+```
+npm run cloudflare:generate
+```
+or
+```
+yarn cloudflare:generate
+```
+
+### Output directory
+Use `dist` as the Cloudflare Pages build output.
+
+### Required environment variables
+Set these in the Cloudflare Pages project settings (Environment Variables):
+
+* `API_URL` – Kaiko API base URL
+* `API_KEY` – Auth token for API
+* `WP_URL` – Public WordPress site root (used to fetch sitemap and build static routes)
+* `BASE_URL` – Public site base URL (e.g. https://www.example.com)
+* (Optional) `IMAGE_DOMAINS` – Comma-separated list of remote image hostnames used in `<nuxt-image>` components
+* Any Axeptio / GTM related vars already present locally
+
+### Redirects
+`scripts/generate-cloudflare-redirects.js` creates a `_redirects` file inside `dist` from the existing redirect configuration. Update `redirects/index.js` to add new rules, then rebuild.
+
+### 404 Handling
+Cloudflare will serve `404.html` automatically for missing routes. A custom static `static/404.html` file has been added. A `200.html` fallback is produced by Nuxt for SPA behaviour (`generate.fallback`).
+
+### Notes
+* All dynamic data continues to be fetched client-side from the WordPress / API endpoints.
+* If you add server middleware, guard it behind `STATIC_DEPLOY` / `CF_PAGES` so it’s excluded from static builds.
+* For new dynamic routes ensure they appear in the remote WP sitemaps or extend `generate.routes` to include them manually.
+
 ## ACF
 Since Kaiko is a multisite, specific management of ACFs has been implemented place.
 
