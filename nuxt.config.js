@@ -239,6 +239,7 @@ export default {
     generate: {
         crawler: false, // we'll explicitly list routes
         fallback: '200.html', // SPA-style fallback; Cloudflare serves 404.html if missing
+        interval: 50,
     exclude: [/^\/s$/], // search page rendered client-side only
         routes: async () => {
             try {
@@ -349,12 +350,18 @@ export default {
                     const { redirectGenerator } = require('./redirects')
                     const addTarget = (to) => {
                         if (!to || typeof to !== 'string') return
+                        const trimmed = to.trim()
                         // external absolute URL -> skip (served elsewhere)
-                        if (/^https?:\/\//i.test(to)) return
-                        let route = to
+                        if (/^https?:\/\//i.test(trimmed)) return
+                        // Skip obviously malformed targets starting with protocol fragment
+                        if (/^https?:/i.test(trimmed)) return
+                        let route = trimmed
                         // Normalize fragment / query
                         route = route.split('#')[0].split('?')[0] || '/'
+                        // Ensure leading slash and no double protocol bits accidentally kept
                         if (!route.startsWith('/')) route = '/' + route
+                        // Filter out accidental '/https:' '/http:' etc
+                        if (/^\/https?:/i.test(route)) return
                         if (route === '/s') return
                         routeSet.add(route)
                     }
