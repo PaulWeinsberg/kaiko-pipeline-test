@@ -14,7 +14,7 @@
         "build:production": "NODE_ENV=prod nuxt build",
         "start": "nuxt start",
         "generate": "nuxt generate",
-        "cloudflare:generate": "STATIC_DEPLOY=true CF_PAGES=true DEBUG_ROUTES=true nuxt generate && node ./scripts/generate-cloudflare-redirects.js",
+        "cloudflare:generate": "STATIC_DEPLOY=true CF_PAGES=true DEBUG_ROUTES=true nuxt generate && node --env-file=.env ./scripts/generate-cloudflare-redirects.js",
         "cf:build": "npm run cloudflare:generate",
         "cf:dev": "wrangler dev",
         "cf:preview": "wrangler dev --local",
