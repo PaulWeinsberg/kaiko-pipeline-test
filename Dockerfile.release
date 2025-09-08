@@ -18,8 +18,6 @@ COPY middleware middleware
 
 COPY utils utils
 
-COPY redirects redirects
-
 EXPOSE 3000 8090
 
 CMD ["sh", "-c", "yarn start"]
