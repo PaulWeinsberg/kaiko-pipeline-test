@@ -162,8 +162,11 @@
             },
             path_() {
                 const { $config, path } = this
-                if (!path || !path.startsWith($config.baseUrl)) return path
-                return path.replace($config.baseUrl, '/')
+                if (!path || (!path.startsWith($config.baseUrl) && !path.startsWith($config.alternateBaseUrl))) return path
+                return path
+                    .replace($config.alternateBaseUrl, '/')
+                    .replace($config.baseUrl, '/')
+                    .replace(/^\/\//, '/')
             },
             isExternal() {
                 const { path_ } = this

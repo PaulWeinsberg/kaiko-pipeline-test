@@ -1,6 +1,12 @@
 import { sitemapGenerator } from './utils/sitemap'
+import axios from 'axios';
+
+process.env.BASE_URL = process.env.STATIC_PROTOCOL + '://' + process.env.STATIC_HOST;
+process.env.ALTERNATE_BASE_URL = process.env.SSR_PROTOCOL + '://' + process.env.SSR_HOST;
 
 export default {
+    // Enable full static generation for Cloudflare Pages
+    target: 'static',
     // https://github.com/ktquez/vue-head
     head: {
         title: 'Kaiko',
@@ -78,6 +84,7 @@ export default {
         apiUrl: process.env.API_URL,
         apiKey: process.env.API_KEY,
         baseUrl: process.env.BASE_URL,
+        alternateBaseUrl: process.env.ALTERNATE_BASE_URL,
         wpUrl: process.env.WP_URL,
         axeptio: {
             clientId: process.env.AXEPTIO_CLIENT_ID,
@@ -111,8 +118,9 @@ export default {
 
     // Modules: https://go.nuxtjs.dev/config-modules
     modules: [
-        // Laisser en premier
+        // Keep it first
         '~/modules/main',
+
         // https://www.npmjs.com/package/nuxt-basic-auth-module
         'nuxt-basic-auth-module',
         // https://go.nuxtjs.dev/axios
@@ -136,8 +144,22 @@ export default {
         // https://sitemap.nuxtjs.org/fr
         '@nuxtjs/sitemap',
         // https://image.nuxtjs.org
-        '@nuxt/image'
+        '@nuxt/image',
+
+        // Keep them last
+        '~/modules/static-override',
+        '~/modules/cloudflare-redirects',
     ],
+
+    // Nuxt image configuration optimized for static hosting on Cloudflare Pages
+    image: {
+        // Use static provider so that images are processed at build time and emitted to /_nuxt
+        provider: 'static',
+        // You can whitelist external domains here if <nuxt-image> points to remote assets
+        domains: process.env.IMAGE_DOMAINS ? process.env.IMAGE_DOMAINS.split(',').map(d => d.trim()) : [],
+        // Disable sharp optimisations that would otherwise require a Node server runtime
+        sharp: false,
+    },
 
     // Style resources
     styleResources: {
@@ -202,8 +224,62 @@ export default {
 
     sitemap: sitemapGenerator,
 
-    serverMiddleware: [
-        '~/middleware/redirects'
-    ]
+    // Redirect handling is done via Cloudflare _redirects file on static deploys
+    serverMiddleware: [],
+
+    // Static generation configuration
+    generate: {
+        crawler: false, // we'll explicitly list routes
+        fallback: '200.html', // SPA-style fallback; Cloudflare serves 404.html if missing
+        interval: 50,
+        exclude: [/^\/s$/],
+        routes: async () => {
+            try {
+                const routeSet = new Set()
+
+                // Add routes from the API
+                try {
+                    const apiBase = process.env.API_URL.replace(/\/$/, '')
+                    const { data: routes } = await axios.get(`${apiBase}/routes`, {
+                        headers: { 'X-Auth-Token': process.env.API_KEY }
+                    });
+                    for (const route of routes) routeSet.add(route);
+                } catch (e) {
+                    console.error('[generate] API routes failed', e.message)
+                    throw e;
+                }
+
+                // Add redirect target to avoid blank page when a redirect target does not exist
+                try {
+                    const apiBase = process.env.API_URL.replace(/\/$/, '')
+                    const { data: { redirects } } = await axios.get(`${apiBase}/redirects`, {
+                        headers: { 'X-Auth-Token': process.env.API_KEY }
+                    });
+                    const routes = redirects
+                        .map(({ target }) => target)
+                        // Make inbound links relative to the base URL and remove the base URL from the target path.
+                        .map(target => target?.replace(process.env.BASE_URL, ''))
+                        // Remove undefined elements
+                        .filter(Boolean)
+                        // Removes outbound links
+                        .filter(target => !target.startsWith('http'));
+
+                    for (const route of routes) routeSet.add(route);
+                } catch (e) {
+                    console.error('[generate] API redirects failed', e.message)
+                    throw e;
+                }
+
+                // Add 404 handling
+                routeSet.add('/404')
+
+                // Return sorted list (shorter paths first) for determinism
+                return [...routeSet].sort((a,b) => a.localeCompare(b))
+            } catch (e) {
+                console.error('Error while generating routes from WP sitemap', e.message)
+                throw e;
+            }
+        }
+    }
 
 }

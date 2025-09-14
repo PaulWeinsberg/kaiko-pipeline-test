@@ -1,0 +1,7 @@
+{
+    "name": "cloudflare-redirect",
+    "description": "Generate Cloudflare Pages compatible _redirects file",
+    "author": "Kaiko",
+    "main": "module.js",
+    "license": "MIT"
+}

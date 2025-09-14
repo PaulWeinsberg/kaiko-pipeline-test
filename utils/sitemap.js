@@ -9,7 +9,7 @@ export const sitemapGenerator = async () => {
             return el[1]
         })
 
-    const hostname = (process.env.BASE_URL || process.env.SITE_URL || process.env.WP_URL || '').replace(/\/$/, '')
+    const hostname = (process.env.BASE_URL ?? '').replace(/\/$/, '')
 
     const sitemapsReturn = [
             {

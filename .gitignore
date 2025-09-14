@@ -89,6 +89,9 @@ sw.*
 # macOS
 .DS_Store
 
+# Wrangler
+.wrangler
+
 # Vim swap files
 *.swp
 
