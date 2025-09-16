@@ -7,8 +7,7 @@
         "ssr:build": "nuxt build --host 0.0.0.0 -c ssr.nuxt.config.ts",
         "static:generate": "nuxt generate -c static.nuxt.config.js",
         "cf:build": "npm run static:generate",
-        "cf:dev": "wrangler dev",
-        "cf:preview": "wrangler dev --local --ip 0.0.0.0",
+        "cf:serve": "wrangler dev --local --ip 0.0.0.0",
         "cf:publish": "wrangler publish"
     },
     "engines": {

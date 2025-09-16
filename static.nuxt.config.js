@@ -146,7 +146,8 @@ export default {
         // https://image.nuxtjs.org
         '@nuxt/image',
 
-        // Keep them last
+        // Static relatives
+        '~/modules/static-images',
         '~/modules/static-override',
         '~/modules/cloudflare-redirects',
     ],
@@ -246,27 +247,6 @@ export default {
                     for (const route of routes) routeSet.add(route);
                 } catch (e) {
                     console.error('[generate] API routes failed', e.message)
-                    throw e;
-                }
-
-                // Add redirect target to avoid blank page when a redirect target does not exist
-                try {
-                    const apiBase = process.env.API_URL.replace(/\/$/, '')
-                    const { data: { redirects } } = await axios.get(`${apiBase}/redirects`, {
-                        headers: { 'X-Auth-Token': process.env.API_KEY }
-                    });
-                    const routes = redirects
-                        .map(({ target }) => target)
-                        // Make inbound links relative to the base URL and remove the base URL from the target path.
-                        .map(target => target?.replace(process.env.BASE_URL, ''))
-                        // Remove undefined elements
-                        .filter(Boolean)
-                        // Removes outbound links
-                        .filter(target => !target.startsWith('http'));
-
-                    for (const route of routes) routeSet.add(route);
-                } catch (e) {
-                    console.error('[generate] API redirects failed', e.message)
                     throw e;
                 }
 

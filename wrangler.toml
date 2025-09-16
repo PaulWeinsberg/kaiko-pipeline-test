@@ -1,6 +1,7 @@
-  name = "worker-name"
-  compatibility_date = "2025-08-29"
+name = "saphes-kaiko"
+compatibility_date = "2025-08-29"
 
-  [assets]
-  directory = "./dist"
-  html_handling = "drop-trailing-slash"
+[assets]
+directory = "./dist"
+not_found_handling = "404-page"
+html_handling = "drop-trailing-slash"

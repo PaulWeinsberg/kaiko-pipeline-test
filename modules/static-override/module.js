@@ -13,8 +13,18 @@ module.exports = async function module() {
       try {
         let content = fs.readFileSync(filePath, 'utf8')
         const originalContent = content
+
+        const ssrOriginalUrl = process.env.SSR_PROTOCOL + '://' + process.env.SSR_HOST;
+        const ssrEncodedUrl = ssrOriginalUrl.replaceAll('/', '\\u002F');
+        const staticOriginalUrl = process.env.STATIC_PROTOCOL + '://' + process.env.STATIC_HOST;
+        const staticEncodedUrl = staticOriginalUrl.replaceAll('/', '\\u002F');
+        const apiOriginalUploadsUrl = process.env.API_UPLOADS_URL;
+        const apiEncodedUploadsUrl = apiOriginalUploadsUrl.replaceAll('/', '\\u002F');
         content = content
-          .replaceAll(process.env.SSR_PROTOCOL + '://' + process.env.SSR_HOST, process.env.STATIC_PROTOCOL + '://' + process.env.STATIC_HOST);
+          .replaceAll(ssrOriginalUrl, staticOriginalUrl)
+          .replaceAll(ssrEncodedUrl, staticEncodedUrl)
+          .replaceAll(apiOriginalUploadsUrl, staticOriginalUrl + '/assets')
+          .replaceAll(apiEncodedUploadsUrl, staticEncodedUrl + '\\u002Fassets');
 
         if (content !== originalContent) fs.writeFileSync(filePath, content, 'utf8');
 
