@@ -25,15 +25,15 @@ DOCKER ?= docker run \
 
 # Install the application
 install:
-	$(DOCKER) yarn install
+	$(DOCKER) npm install
 
 # Build the Docker image
 build: install
-	$(DOCKER) yarn build
+	$(DOCKER) npm run ssr:build
 
 # Start the application
 start:
-	$(DOCKER) yarn start
+	$(DOCKER) npm run ssr:serve
 
 # Release the application
 release: build
