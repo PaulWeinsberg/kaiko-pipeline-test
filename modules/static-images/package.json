@@ -1,7 +1,0 @@
-{
-    "name": "static-images",
-    "description": "Download an make images availables in static build",
-    "author": "Kaiko",
-    "main": "module.js",
-    "license": "MIT"
-}

@@ -147,7 +147,7 @@ export default {
         '@nuxt/image',
 
         // Static relatives
-        '~/modules/static-images',
+        '~/modules/static-uploads',
         '~/modules/static-override',
         '~/modules/cloudflare-redirects',
     ],

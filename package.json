@@ -3,9 +3,9 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "ssr:dev": "nuxt dev --host 0.0.0.0 -c ssr.nuxt.config.js",
-        "ssr:build": "nuxt build --host 0.0.0.0 -c ssr.nuxt.config.js",
-        "ssr:serve": "nuxt start --host 0.0.0.0",
+        "ssr:dev": "nuxt dev --hostname 0.0.0.0 -c ssr.nuxt.config.js",
+        "ssr:build": "nuxt build -c ssr.nuxt.config.js",
+        "ssr:serve": "nuxt start --hostname 0.0.0.0 -c ssr.nuxt.config.js",
         "static:generate": "nuxt generate -c static.nuxt.config.js",
         "cf:build": "npm run static:generate",
         "cf:serve": "wrangler dev --local --ip 0.0.0.0",
