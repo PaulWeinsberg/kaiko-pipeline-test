@@ -5,6 +5,7 @@
     "scripts": {
         "ssr:dev": "nuxt dev --host 0.0.0.0 -c ssr.nuxt.config.ts",
         "ssr:build": "nuxt build --host 0.0.0.0 -c ssr.nuxt.config.ts",
+        "ssr:serve": "nuxt start",
         "static:generate": "nuxt generate -c static.nuxt.config.js",
         "cf:build": "npm run static:generate",
         "cf:serve": "wrangler dev --local --ip 0.0.0.0",
