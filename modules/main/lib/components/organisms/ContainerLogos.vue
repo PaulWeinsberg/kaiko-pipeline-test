@@ -131,8 +131,8 @@
              * Permet de définir les valeurs dynamiques
              */
             setDynamicValues() {
-                const { $refs } = this
-                this.animate = this.totalWidth > $refs.logos.clientWidth
+                const { content } = this
+                this.animate = content.animate;
             },
             /**
              * Permet de mettre nos éléments HTML en position
