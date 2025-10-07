@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { redirectGenerator } from '../redirects/index.js'
 
 /**
  * @typedef {Object} RedirectRule
@@ -53,7 +52,7 @@ export default async function (req, res, next) {
         to: el.target,
         statusCode: el.type
       }));
-      cachedRedirects = [...apiRedirects, ...redirectGenerator];
+      cachedRedirects = [...apiRedirects];
       cacheTimestamp = now;
     }
 

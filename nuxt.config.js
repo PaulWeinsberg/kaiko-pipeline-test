@@ -1,18 +1,4 @@
-import axios from 'axios'
 import { sitemapGenerator } from './utils/sitemap'
-import { redirectGenerator } from './redirects/index.js'
-
-const createAxios = axios.create({
-    headers: {
-        common: {
-            Accept: 'application/json, text/plain, */*',
-            'X-Auth-Token': process.env.API_KEY,
-        },
-    },
-    credentials: false,
-    withCredentials: false,
-    baseURL: process.env.API_URL,
-})
 
 export default {
     // https://github.com/ktquez/vue-head
