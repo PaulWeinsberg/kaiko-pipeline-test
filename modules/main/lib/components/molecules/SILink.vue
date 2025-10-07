@@ -163,7 +163,8 @@
             path_() {
                 const { $config, path } = this
                 if (!path || !path.startsWith($config.baseUrl)) return path
-                return path.replace($config.baseUrl, '/')
+                const processedPath = path.replace($config.baseUrl, '/');
+                return processedPath === '/#nolink' ? '' : processedPath;
             },
             isExternal() {
                 const { path_ } = this
