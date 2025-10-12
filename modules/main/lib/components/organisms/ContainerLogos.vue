@@ -47,8 +47,10 @@
                 return !!title
             },
             style() {
-                const { oneSidePadding, hasTitle } = this
-                if (!hasTitle) return {}
+                const { oneSidePadding, hasTitle, animate } = this
+                if (!hasTitle) return {
+                    justifyContent: animate ? 'flex-start' : 'center'
+                }
                 return {
                     paddingLeft: `${oneSidePadding}px`,
                 }
