@@ -39,6 +39,7 @@
     import ContainerTextImageNotFull from '../organisms/ContainerTextImageNotFull.vue'
     import ContainerFourBlocs from '../organisms/ContainerFourBlocs.vue'
     import ContainerMultipleBlocs from '../organisms/ContainerMultipleBlocs.vue'
+    import ContainerMultiTextBlocks from '../organisms/ContainerMultiTextBlocks.vue'
 
     export default {
         name: 'TplEdito',
@@ -58,6 +59,7 @@
             ContainerTextImageNotFull,
             ContainerFourBlocs,
             ContainerMultipleBlocs,
+            ContainerMultiTextBlocks
         },
         props: {
             content: {
