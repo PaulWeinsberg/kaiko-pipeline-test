@@ -10,6 +10,8 @@ const initTracking = ($gtm, store) => {
 }
 
 export default function ({ app, store, $gtm }) {
+    // Disable axeptio as it will be injected by GTM, keep the code in case of a rollback
+    return;
     const { axeptio = {} } = store.state.options.options
 
     // Les options axeptio
