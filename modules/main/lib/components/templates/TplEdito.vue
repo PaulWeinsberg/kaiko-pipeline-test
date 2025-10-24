@@ -1,12 +1,13 @@
 <template>
     <SIMain>
         <Hero
-            :design="hero.design"
-            :background="hero.background"
-            :content="hero.content"
-            :hubspot="hero.g_hubspot"
-            :image="hero.image || null"
-            :publication_date="content.publication_date"
+            v-if="hero"
+            :design="hero?.design"
+            :background="hero?.background"
+            :content="hero?.content"
+            :hubspot="hero?.g_hubspot"
+            :image="hero?.image || null"
+            :publication_date="content?.publication_date"
             :items="items"
             :breadcrumbs="seo?.breadcrumbs"
             :authors="infos?.taxonomies?.author"
@@ -15,7 +16,7 @@
         <ContainerAnchor :content="content" />
         <component
             :is="component.acf_fc_layout"
-            v-for="(component, i) in content.page_builder"
+            v-for="(component, i) in (content?.page_builder || [])"
             :id="component.id"
             :key="i"
             :content="component"
@@ -39,6 +40,7 @@
     import ContainerTextImageNotFull from '../organisms/ContainerTextImageNotFull.vue'
     import ContainerFourBlocs from '../organisms/ContainerFourBlocs.vue'
     import ContainerMultipleBlocs from '../organisms/ContainerMultipleBlocs.vue'
+    import ContainerMultiTextBlocks from '../organisms/ContainerMultiTextBlocks.vue'
 
     export default {
         name: 'TplEdito',
@@ -58,6 +60,7 @@
             ContainerTextImageNotFull,
             ContainerFourBlocs,
             ContainerMultipleBlocs,
+            ContainerMultiTextBlocks
         },
         props: {
             content: {
@@ -76,15 +79,16 @@
         },
         computed: {
             hero() {
-                const { content } = this
-                return content.hero
+                return this.content?.hero || null
             },
             items() {
-                const { hero } = this
-                const { items_automatic } = hero
-                const slug = `${hero.design}s`
-                if (items_automatic.selected) return items_automatic[slug]
-                return hero[slug]
+                const hero = this.hero
+                if (!hero) return []
+                const { items_automatic = {}, design } = hero
+                if (!design) return []
+                const slug = `${design}s`
+                if (items_automatic.selected) return items_automatic[slug] || []
+                return hero[slug] || []
             },
         },
     }

@@ -4,10 +4,10 @@
         <BaseMegaMenu />
         <Nuxt />
         <BaseFooter
-            :footer="footer.items"
-            :sub-footer="subFooter"
+            :footer="footer?.items || []"
+            :sub-footer="subFooter || []"
             :options="options"
-            :social-medias="footer.custom_fields.social_medias || []"
+            :social-medias="footer?.custom_fields?.social_medias || []"
         />
     </div>
 </template>
@@ -22,7 +22,7 @@
         computed: {
             ...mapState({
                 footer: state => state.menu.footer,
-                subFooter: state => state.menu.footerSub.items,
+                subFooter: state => (state.menu.footerSub && state.menu.footerSub.items) || [],
             }),
             showSearchField() {
                 const { header } = this

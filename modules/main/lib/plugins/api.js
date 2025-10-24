@@ -1,11 +1,12 @@
 import { isFunction } from './../core'
 
-const createAxios = ($axios, { apiUrl, apiKey }) => {
+const createAxios = ($axios, { apiUrl, apiKey, baseUrl }) => {
     const api = $axios.create({
         headers: {
             common: {
                 Accept: 'application/json, text/plain, */*',
                 'X-Auth-Token': apiKey,
+                'X-Kaiko-Domain': baseUrl,
             },
         },
         credentials: false,

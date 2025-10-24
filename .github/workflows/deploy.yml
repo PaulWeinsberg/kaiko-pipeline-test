@@ -1,0 +1,54 @@
+---
+name: deploy
+
+on: workflow_dispatch
+
+env:
+  SSR_HOST: preview-www.kaiko.com
+  SSR_PROTOCOL: https
+  STATIC_HOST: www.kaiko.com
+  STATIC_PROTOCOL: https
+  API_KEY: -)<X[4J9Y!zxam;S
+  NODE_ENV: prod
+  API_UPLOADS_URL: https://web-bo-i.kaiko.com/wp-content/uploads
+  API_URL: https://web-bo-i.kaiko.com/wp-json/spin-api
+  WP_URL: https://web-bo-i.kaiko.com
+  WRANGLER_WORKER_NAME: website-institutional-prod
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/jod
+      - run: npm install
+      - run: npm run cf:build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist
+      - run: |
+          cat > wrangler.toml << EOF
+          name = "${{ env.WRANGLER_WORKER_NAME }}"
+          compatibility_date = "2025-08-29"
+
+          [assets]
+          directory = "./dist"
+          not_found_handling = "404-page"
+          html_handling = "drop-trailing-slash"
+          EOF
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy

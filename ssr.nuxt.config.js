@@ -1,7 +1,9 @@
 import { sitemapGenerator } from './utils/sitemap'
 
+process.env.BASE_URL = process.env.SSR_PROTOCOL + '://' + process.env.SSR_HOST;
+process.env.ALTERNATE_BASE_URL = process.env.STATIC_PROTOCOL + '://' + process.env.STATIC_HOST;
+
 export default {
-    // https://github.com/ktquez/vue-head
     head: {
         title: 'Kaiko',
         htmlAttrs: {
@@ -78,6 +80,7 @@ export default {
         apiUrl: process.env.API_URL,
         apiKey: process.env.API_KEY,
         baseUrl: process.env.BASE_URL,
+        alternateBaseUrl: process.env.ALTERNATE_BASE_URL,
         wpUrl: process.env.WP_URL,
         axeptio: {
             clientId: process.env.AXEPTIO_CLIENT_ID,
@@ -202,8 +205,9 @@ export default {
 
     sitemap: sitemapGenerator,
 
+    // Redirect handling is done via Cloudflare _redirects file on static deploys
     serverMiddleware: [
         '~/middleware/redirects'
-    ]
+    ],
 
 }
