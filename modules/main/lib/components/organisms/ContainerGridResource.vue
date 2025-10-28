@@ -162,8 +162,8 @@
 
                 if (!resource_category?.length && selectedCategories?.length) {
                     params.tax_query = {
-                        operator: 'OR',
                         0: {
+                            operator: 'IN',
                             taxonomy: 'resource_category',
                             field: 'slug',
                             terms: (selectedCategories ?? [])
@@ -173,8 +173,8 @@
                     }
                 } else if (resource_category?.length) {
                     params.tax_query = {
-                        operator: 'OR',
                         0: {
+                            operator: 'IN',
                             taxonomy: 'resource_category',
                             field: 'slug',
                             terms: (resource_category ?? []).map(el => el.name),

@@ -85,7 +85,10 @@
                         }
                     if (type === 'resource') {
                         return {
-                            ...valuesShared
+                            ...valuesShared,
+                            path: item.fields.download_only
+                            ? item.fields.download_file?.url ?? item.fields.download_link
+                            : item.url
                         }
                     }
                     return valuesShared
