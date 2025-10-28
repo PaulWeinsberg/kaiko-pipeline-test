@@ -58,6 +58,7 @@ import CardOffice from './CardOffice.vue'
 import KeyFigure from './KeyFigure.vue'
 import CardNews from './CardNews.vue'
 import PanelFilterSearchResults from './PanelFilterSearchResults.vue'
+import PanelFilterTypeResource from './PanelFilterTypeResource.vue'
 
 export default {
     SILink,
@@ -105,6 +106,7 @@ export default {
     MegaMenuItem,
     Breadcrumbs,
     PanelFilterTypePost,
+    PanelFilterTypeResource,
     TypePost,
     SIVideo,
     CookiesNotAllowed,

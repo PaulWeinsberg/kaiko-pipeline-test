@@ -33,6 +33,7 @@ import ContainerPush from './ContainerPush.vue'
 import ContainerIconsImage from './ContainerIconsImage.vue'
 import ContainerGridNews from './ContainerGridNews.vue'
 import SIFitText from './SIFitText.vue'
+import ContainerGridResource from './ContainerGridResource.vue'
 
 export default {
     HeroPostObject,
@@ -48,6 +49,7 @@ export default {
     ContainerText,
     SectionEdito,
     ContainerGridPost,
+    ContainerGridResource,
     ContainerLogos,
     ContainerPricing,
     ContainerEdito,
