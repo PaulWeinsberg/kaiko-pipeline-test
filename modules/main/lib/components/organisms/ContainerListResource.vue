@@ -7,24 +7,27 @@
                 @filters:change="filterPosts"
             />
         </template>
-        <GridPost
+        <ListPost
             :loading="loading"
             :total="total"
             :full="grid.show_all"
         >
-            <TypePost
+            <ListResource
                 v-for="item in items"
                 :key="item.id"
-                :type="'resource'"
-                :item="item"
+                :title="item.title"
+                :content="item.fields.excerpt || null"
+                :path="item.url"
+                :file="item.fields.document"
+                :tag="'li'"
             />
-        </GridPost>
+        </ListPost>
         <SIPagination
             v-if="grid.show_all"
             ref="pagination"
             :count="totalIntern || total"
             :limit="limit"
-            scroll-to-parent=".container-grid-resource"
+            scroll-to-parent=".container-list-resource"
             :text-prev="wordings.g_grid.pagination.prev"
             :text-next="wordings.g_grid.pagination.next"
             @click="onClickPagination"
@@ -44,19 +47,19 @@
 
 <script>
     import { mapState } from 'vuex'
-    import GridPost from '../molecules/GridPost.vue'
+    import ListPost from '../molecules/ListPost.vue'
     import PanelSort from '../molecules/PanelSort.vue'
     import PanelFilterTypeResource from '../molecules/PanelFilterTypeResource.vue'
     import SILink from '../molecules/SILink.vue'
-    import TypePost from '../molecules/TypePost.vue'
+    import ListResource from '../molecules/ListResource.vue'
     import SectionEdito from './SectionEdito.vue'
 
     export default {
-        name: 'ContainerGridResource',
+        name: 'ContainerListResource',
         components: {
             SILink,
-            TypePost,
-            GridPost,
+            ListResource,
+            ListPost,
             SectionEdito,
             PanelSort,
             PanelFilterTypeResource
@@ -86,7 +89,7 @@
             }),
             classNames() {
                 return [
-                    'container-grid-resource',
+                    'container-list-resource',
                     `grid-three-columns`,
                 ]
             },

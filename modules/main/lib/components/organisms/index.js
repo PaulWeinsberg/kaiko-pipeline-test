@@ -34,6 +34,7 @@ import ContainerIconsImage from './ContainerIconsImage.vue'
 import ContainerGridNews from './ContainerGridNews.vue'
 import SIFitText from './SIFitText.vue'
 import ContainerGridResource from './ContainerGridResource.vue'
+import ContainerListResource from './ContainerListResource.vue'
 
 export default {
     HeroPostObject,
@@ -50,6 +51,7 @@ export default {
     SectionEdito,
     ContainerGridPost,
     ContainerGridResource,
+    ContainerListResource,
     ContainerLogos,
     ContainerPricing,
     ContainerEdito,
