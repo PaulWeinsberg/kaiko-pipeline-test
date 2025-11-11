@@ -1,8 +1,11 @@
 <template>
     <component :is="tag" :class="classNames">
-        <div class="container">
-            <SILink class="title" :title="title" :path="path" />
-            <SIWys v-if="contentIntern" :content="contentIntern" />
+        <div class="wrapper">
+            <div class="content">
+                <SILink design="secondary" class="title" :title="title" :path="link.path" />
+                <SIWys v-if="contentIntern" :content="contentIntern" />
+            </div>
+            <SILink design="quaternary" class="link" :title="link.text" :path="link.path" />
         </div>
     </component>
 </template>
@@ -53,6 +56,11 @@
                 required: false,
                 default: 0,
             },
+            item: {
+                type: Object,
+                required: true,
+                default: null,
+            },
         },
         computed: {
             ...mapState({
@@ -77,60 +85,38 @@
                 })
                 return test.string
             },
+            link() {
+                const { item } = this;
+                return {
+                    text: item.fields.download_only ? 'Download' : 'View resource',
+                    path: item.fields.download_only
+                    ? item.fields.download_file?.url ?? item.fields.download_link
+                    : item.url
+                }
+            },
         },
     }
 </script>
 
 <style scoped lang="scss">
     .list-resource {
-        display: flex;
-        flex-shrink: 0;
-        flex-direction: row;
-        align-items: flex-start;
-        width: auto;
-        max-width: unset;
-        .si-image {
-            position: relative;
-            overflow: visible;
-            width: 14rem;
-            flex-shrink: 0;
-            @media screen and (max-width: $littleLaptopBreakPoint) {
-                width: 11rem;
-            }
-            .tag {
-                position: absolute;
-                left: 1.2rem;
-                top: 0;
-                transform: translateY(-50%);
-            }
-        }
-        .container {
+        .wrapper {
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            width: calc(100% - 14rem);
-            padding: 0.5rem 0.9rem 0.3rem 2rem;
-            box-sizing: border-box;
-            margin: 0;
-            position: relative;
-            @media screen and (max-width: $littleLaptopBreakPoint) {
-                width: calc(100% - 11rem);
-                padding: 0.75rem;
-            }
-            .title {
-                margin-top: 0.55rem;
-                font-weight: 700;
-                font-size: 0.75rem;
-                line-height: 1.4em;
-                text-transform: uppercase;
-                @include parent-has-class('.hover') {
-                    text-decoration: underline;
-                }
-            }
-            .si-wys {
-                margin: 0.4rem 0;
-                :deep(p) {
-                    line-height: 1.6em;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 4rem;
+            .content {
+                .title {
+                    margin-top: 0.55rem;
+                    font-weight: 700;
+                    font-size: 0.75rem;
+                    line-height: 1.4em;
+                    text-transform: uppercase;
+                    color: var(--electric-blue-700);
+                    @include parent-has-class('.hover') {
+                        text-decoration: underline;
+                    }
                 }
             }
         }

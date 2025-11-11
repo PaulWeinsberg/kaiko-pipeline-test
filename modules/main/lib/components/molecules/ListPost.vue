@@ -42,33 +42,9 @@
 
 <style scoped lang="scss">
     .list-post {
-        display: flex;
-        width: 100%;
-        position: relative;
-        ul {
-            display: grid;
-            grid-gap: 3.2rem 1.2rem;
-            width: 100%;
-            justify-content: center;
-            grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-            .grid-four-columns & {
-                grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-            }
-            > * {
-                width: 100%;
-                margin: 0 auto;
-            }
-        }
-        &.full {
-            ul {
-                grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-                .grid-four-columns & {
-                    grid-template-columns: repeat(
-                        auto-fill,
-                        minmax(14rem, 1fr)
-                    );
-                }
-            }
+        li {
+            padding: 1rem 0rem .5rem;
+            border-bottom: 1px solid var(--midnight-blue-300);
         }
     }
 </style>

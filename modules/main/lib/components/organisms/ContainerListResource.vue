@@ -20,6 +20,7 @@
                 :path="item.url"
                 :file="item.fields.document"
                 :tag="'li'"
+                :item="item"
             />
         </ListPost>
         <SIPagination
