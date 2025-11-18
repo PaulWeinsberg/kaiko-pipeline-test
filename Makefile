@@ -9,12 +9,18 @@ DOCKER ?= docker run \
 		--interactive \
 		--tty \
 		--rm \
+		-e"API_KEY" \
+		-e"API_UPLOADS_URL" \
+		-e"API_URL" \
+		-e"GTM_DEBUG" \
+		-e"GTM_ENABLE" \
 		-e"HOME=$(WORKDIR)" \
 		-e"NODE_ENV" \
-		-e"BASE_URL" \
+		-e"SSR_HOST" \
+		-e"SSR_PROTOCOL" \
+		-e"STATIC_HOST" \
+		-e"STATIC_PROTOCOL" \
 		-e"WP_URL" \
-		-e"API_URL" \
-		-e"API_KEY" \
 		--user="$(UIDGID)" \
 		--volume="$(shell pwd):$(WORKDIR)" \
 		--workdir="$(WORKDIR)" \

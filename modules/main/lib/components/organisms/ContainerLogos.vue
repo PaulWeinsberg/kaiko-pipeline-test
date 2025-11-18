@@ -47,12 +47,9 @@
                 return !!title
             },
             style() {
-                const { oneSidePadding, hasTitle, animate } = this
-                if (!hasTitle) return {
-                    justifyContent: animate ? 'flex-start' : 'center'
-                }
+                const { animate } = this
                 return {
-                    paddingLeft: `${oneSidePadding}px`,
+                    justifyContent: animate ? 'flex-start' : 'center'
                 }
             },
         },
@@ -183,7 +180,7 @@
         min-height: 4.3rem;
         .wrapper {
             display: flex;
-            padding: 1.45rem 0;
+            padding: 1.45rem;
             flex: 1;
             .title {
                 text-transform: uppercase;
