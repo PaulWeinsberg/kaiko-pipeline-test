@@ -9,7 +9,7 @@ module.exports = async function module() {
   const assets = path.join(__dirname, '../../assets')
 
   nuxtInstance.nuxt.hook('generate:before', async () => {
-
+    return;
     console.info('Static uploads download...');
 
     const apiUrl = process.env.API_URL
@@ -78,6 +78,7 @@ module.exports = async function module() {
   })
 
   nuxtInstance.nuxt.hook('generate:done', async () => {
+    return;
       // Copy assets in dist directory
       fs.copySync(assets, distPath + '/assets');
       console.info('Static uploads copy complete!')
