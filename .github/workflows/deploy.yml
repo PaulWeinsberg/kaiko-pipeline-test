@@ -29,27 +29,27 @@ jobs:
         with:
           name: build
           path: dist
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: dist
-      - run: |
-          cat > wrangler.toml << EOF
-          name = "${{ env.WRANGLER_WORKER_NAME }}"
-          compatibility_date = "2025-08-29"
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: build
+  #         path: dist
+  #     - run: |
+  #         cat > wrangler.toml << EOF
+  #         name = "${{ env.WRANGLER_WORKER_NAME }}"
+  #         compatibility_date = "2025-08-29"
 
-          [assets]
-          directory = "./dist"
-          not_found_handling = "404-page"
-          html_handling = "drop-trailing-slash"
-          EOF
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: "4"
-          command: deploy
+  #         [assets]
+  #         directory = "./dist"
+  #         not_found_handling = "404-page"
+  #         html_handling = "drop-trailing-slash"
+  #         EOF
+  #     - uses: cloudflare/wrangler-action@v3
+  #       with:
+  #         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  #         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  #         wranglerVersion: "4"
+  #         command: deploy
