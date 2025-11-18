@@ -4,7 +4,7 @@ name: deploy
 on: workflow_dispatch
 
 env:
-  SSR_HOST: www.kaiko.ovh
+  SSR_HOST: preview-www.kaiko.com
   SSR_PROTOCOL: https
   STATIC_HOST: www.kaiko.com
   STATIC_PROTOCOL: https
@@ -13,7 +13,7 @@ env:
   API_UPLOADS_URL: https://web-bo-i.kaiko.com/wp-content/uploads
   API_URL: https://web-bo-i.kaiko.com/wp-json/spin-api
   WP_URL: https://web-bo-i.kaiko.com
-  WRANGLER_WORKER_NAME: kaiko
+  WRANGLER_WORKER_NAME: website-institutional-prod
 
 jobs:
   build:
@@ -51,4 +51,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
           command: deploy
