@@ -4,8 +4,8 @@
         <fieldset class="si-checkbox">
             <SICheckboxItem
                 v-for="(item, i) in itemsIntern"
+                :key="`${i}-${forceRenderKey}`"
                 ref="checkbox"
-                :key="i"
                 :name="item[itemName]"
                 :checked="item.checked"
                 :label="item[itemText]"
@@ -73,6 +73,11 @@
                 default: null,
             },
         },
+        data() {
+            return {
+                forceRenderKey: 0
+            }
+        },
         computed: {
             itemsIntern() {
                 const {
@@ -92,6 +97,10 @@
 
                 return [allValues, ...items]
             }
+        },
+        mounted() {
+            // Force re-render by updating the key when component is mounted
+            this.forceRenderKey++
         },
         methods: {
             /**

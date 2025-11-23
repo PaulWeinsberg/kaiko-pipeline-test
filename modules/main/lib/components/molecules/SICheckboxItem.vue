@@ -14,7 +14,7 @@
                 <SIIcon v-if="checkedIntern" name="check" color="white-100" />
             </span>
         </div>
-        <slot name="label" :data="{ name, label, uniqueId }" />
+        <slot name="label" :data="{ name, label }" :uniqueId="uniqueId" />
         <label v-if="!$scopedSlots.label" :for="uniqueId">{{ label }}</label>
     </div>
 </template>
@@ -53,20 +53,12 @@
                 type: [Array, String],
                 required: false,
                 default: null,
-            },
-            uniqueId: {
-                type: String,
-                required: false,
-                default: null,
-            },
+            }
         },
         data: () => ({
             checked_: null,
             checkedFake_: null,
         }),
-        setup: (data) => {
-            data.uniqueId = data.name + '___' + Math.random().toString(36).substring(2, 9);
-        },
         computed: {
             classNames() {
                 const { checkedIntern, fake, checkedFake } = this
@@ -92,6 +84,11 @@
                 },
                 set(nV) {
                     this.checkedFake_ = nV
+                },
+            },
+            uniqueId: {
+                get() {
+                    return this.name + '___' + Math.random().toString(36).substring(2, 9);
                 },
             }
         },
