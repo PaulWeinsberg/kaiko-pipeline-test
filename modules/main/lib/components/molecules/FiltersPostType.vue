@@ -11,7 +11,7 @@
         v-on="$listeners"
     >
         <template #label="{ data, item }">
-            <label :for="data.name">
+            <label :for="data.uniqueId">
                 <SIIcon v-if="item?.fields?.icon" :name="item.fields.icon" />
                 <p>{{ data.label }}</p>
             </label>

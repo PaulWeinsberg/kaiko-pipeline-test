@@ -1,8 +1,7 @@
 <template>
     <SectionEdito :content="content" :class="classNames">
         <template v-if="grid.show_all" #afterTitle>
-            <component
-                :is="'PanelFilterTypeResource'"
+            <PanelFilterTypeResource
                 :filters="filters_"
                 @filters:change="filterPosts"
             />

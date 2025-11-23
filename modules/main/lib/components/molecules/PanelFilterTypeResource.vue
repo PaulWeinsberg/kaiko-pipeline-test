@@ -1,5 +1,5 @@
 <template>
-    <div class="panel-filter-type-post">
+    <div class="panel-filter-type-resource">
         <SIForm ref="form" @submit="onSubmit">
             <SIFormRow>
                 <SITextField
@@ -116,7 +116,7 @@
 </script>
 
 <style scoped lang="scss">
-    .panel-filter-type-post {
+    .panel-filter-type-resource {
         display: flex;
         align-items: center;
         width: 100%;

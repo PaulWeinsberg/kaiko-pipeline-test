@@ -91,7 +91,7 @@
                 allValues.checked = !valueInternal || !valueInternal.length
 
                 return [allValues, ...items]
-            },
+            }
         },
         methods: {
             /**

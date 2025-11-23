@@ -3,19 +3,19 @@
         <div class="container">
             <input
                 v-if="!fake"
-                :id="name"
+                :id="uniqueId"
                 v-model="checkedIntern"
                 class="hidden"
                 type="checkbox"
-                :name="name"
+                :name="uniqueId"
                 @change="onChange"
             />
             <span :class="['input', { checked: checkedIntern }]">
                 <SIIcon v-if="checkedIntern" name="check" color="white-100" />
             </span>
         </div>
-        <slot name="label" :data="{ name, label }" />
-        <label v-if="!$scopedSlots.label" :for="name">{{ label }}</label>
+        <slot name="label" :data="{ name, label, uniqueId }" />
+        <label v-if="!$scopedSlots.label" :for="uniqueId">{{ label }}</label>
     </div>
 </template>
 
@@ -54,11 +54,19 @@
                 required: false,
                 default: null,
             },
+            uniqueId: {
+                type: String,
+                required: false,
+                default: null,
+            },
         },
         data: () => ({
             checked_: null,
             checkedFake_: null,
         }),
+        setup: (data) => {
+            data.uniqueId = data.name + '___' + Math.random().toString(36).substring(2, 9);
+        },
         computed: {
             classNames() {
                 const { checkedIntern, fake, checkedFake } = this
@@ -85,7 +93,7 @@
                 set(nV) {
                     this.checkedFake_ = nV
                 },
-            },
+            }
         },
         watch: {
             values(nV) {
