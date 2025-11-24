@@ -44,21 +44,26 @@ module.exports = async function module() {
           const targetPath = path.join(assets, upload.path)
           const writer = fs.createWriteStream(targetPath)
 
-          const response = await axios({
-            method: 'GET',
-            url: upload.url,
-            responseType: 'stream'
-          })
-
-          response.data.pipe(writer)
-
           return new Promise((resolve, reject) => {
+            axios({
+              method: 'GET',
+              url: upload.url,
+              responseType: 'stream'
+            })
+            .then(response => response.data.pipe(writer))
+            .catch(error => {
+              console.error(`Failed to download: ${upload.path}`)
+              console.error(error);
+              reject(error)
+            })
+
             writer.on('finish', () => {
               console.log(`Downloaded: ${upload.path}`)
               resolve();
             })
-            writer.on('error', () => {
+            writer.on('error', error => {
               console.error(`Failed to download: ${upload.path}`)
+              console.error(error);
               reject();
             })
           })
