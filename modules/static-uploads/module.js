@@ -35,34 +35,34 @@ module.exports = async function module() {
       for (const uploads of chunks) {
         const promises = uploads.map(async upload => {
           // Create the target directory if it doesn't exist
-          const targetDir = path.join(assets, path.dirname(upload.path))
+          const targetDir = path.join(assets, path.dirname(decodeURI(upload.path)))
           if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true })
           }
 
           // Download the upload
-          const targetPath = path.join(assets, upload.path)
+          const targetPath = path.join(assets, decodeURI(upload.path))
           const writer = fs.createWriteStream(targetPath)
 
           return new Promise((resolve, reject) => {
             axios({
               method: 'GET',
-              url: upload.url,
+              url: decodeURI(upload.url),
               responseType: 'stream'
             })
             .then(response => response.data.pipe(writer))
             .catch(error => {
-              console.error(`Failed to download: ${upload.path}`)
+              console.error(`Failed to download: ${decodeURI(upload.path)}`)
               console.error(error);
               reject(error)
             })
 
             writer.on('finish', () => {
-              console.log(`Downloaded: ${upload.path}`)
+              console.log(`Downloaded: ${decodeURI(upload.path)}`)
               resolve();
             })
             writer.on('error', error => {
-              console.error(`Failed to download: ${upload.path}`)
+              console.error(`Failed to download: ${decodeURI(upload.path)}`)
               console.error(error);
               reject();
             })
