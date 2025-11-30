@@ -148,7 +148,9 @@
                     offset,
                     order: order || 'DESC',
                     s: s || '',
-                    relevanssi: true,
+                    // Relevance search with Relevanssi plugin is disabled to avoid excluding resources that
+                    // are flagged as download only and have no page behind
+                    // relevanssi: true,
                 }
 
                 if (author) {
