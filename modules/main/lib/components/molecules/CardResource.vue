@@ -6,11 +6,13 @@
         </SIImage>
         <div class="container">
             <LinkCard :path="path" @hover="onHover" />
-            <DateText :date="date">
+            <div class="head-wrap">
+                <DateText v-if="date" :date="date">
+                </DateText>
                 <span v-if="category" class="category">
                     {{ category.name }}
                 </span>
-            </DateText>
+            </div>
             <SILink class="title" :title="title" :path="path" />
             <SIWys v-if="contentIntern" :content="contentIntern" />
             <WrittenBy
@@ -59,7 +61,7 @@
             },
             date: {
                 type: String,
-                required: true,
+                required: false,
             },
             title: {
                 type: String,
@@ -210,18 +212,25 @@
                 width: calc(100% - 11rem);
                 padding: 0.75rem;
             }
-            .category {
+            .head-wrap {
                 display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
                 align-items: center;
-                &:before {
-                    content: '';
-                    width: 0.3rem;
-                    height: 0.3rem;
-                    flex-shrink: 0;
-                    background-color: var(--sunflower-700);
-                    margin: 0 0.8rem;
+                gap: .8rem;
+                .category {
                     display: flex;
-                    border-radius: 50%;
+                    align-items: center;
+                    &:before {
+                        content: '';
+                        width: 0.3rem;
+                        height: 0.3rem;
+                        flex-shrink: 0;
+                        margin-right: .8rem;
+                        background-color: var(--sunflower-700);
+                        display: flex;
+                        border-radius: 50%;
+                    }
                 }
             }
             .title {
