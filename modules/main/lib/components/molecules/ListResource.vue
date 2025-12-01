@@ -88,7 +88,9 @@
             link() {
                 const { item } = this;
                 return {
-                    text: item.fields.download_only ? 'Download' : 'View resource',
+                    text: item.fields.download_only
+                        ? item.fields.download_show_label ?? 'Download'
+                        : item.fields.download_show_label ?? 'View resource',
                     path: item.fields.download_only
                     ? item.fields.download_file?.url ?? item.fields.download_link
                     : item.url
