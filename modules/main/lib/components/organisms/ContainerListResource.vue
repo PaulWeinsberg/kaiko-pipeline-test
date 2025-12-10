@@ -20,6 +20,8 @@
                 :file="item.fields.document"
                 :tag="'li'"
                 :item="item"
+                :publicationDate="publicationDate(item)"
+                :revisionDate="revisionDate(item)"
             />
         </ListPost>
         <SIPagination
@@ -199,6 +201,21 @@
             },
         },
         methods: {
+            isNull(value) {
+                return [null, undefined, ''].some(nullish => value === nullish) || (typeof value === 'number' && isNaN(value));
+            },
+            publicationDate(item) {
+                const { grid } = this;
+                if (!grid.show_publication_date || this.isNull(item.fields.publication_date)) return;
+                const validDate = item.fields.publication_date.split('/').reverse().join('-')
+                return new Date(validDate);
+            },
+            revisionDate(item) {
+                const { grid } = this;
+                if (!grid.show_revision_date || this.isNull(item.date)) return;
+                return new Date(item.date);
+
+            },
             filterPosts(filters) {
                 this.filtersIntern = filters
             },

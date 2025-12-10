@@ -5,6 +5,24 @@
                 <SILink design="secondary" class="title" :title="title" :path="link.path" />
                 <SIWys v-if="contentIntern" :content="contentIntern" />
             </div>
+            <div class="dates">
+                <div v-if="publicationDate" class="publication_date">
+                    <div class="title">
+                        Publication date
+                    </div>
+                    <div class="value">
+                        {{ formatDate(publicationDate) }}
+                    </div>
+                </div>
+                <div v-if="revisionDate" class="revision_date">
+                    <div class="title">
+                        Revision date
+                    </div>
+                    <div class="value">
+                        {{ formatDate(revisionDate) }}
+                    </div>
+                </div>
+            </div>
             <SILink design="quaternary" class="link" :title="link.text" :path="link.path" />
         </div>
     </component>
@@ -61,6 +79,16 @@
                 required: true,
                 default: null,
             },
+            revisionDate: {
+                type: Date,
+                required: false,
+                default: null,
+            },
+            publicationDate: {
+                type: Date,
+                required: false,
+                default: null,
+            },
         },
         computed: {
             ...mapState({
@@ -97,6 +125,16 @@
                 }
             },
         },
+        methods: {
+            formatDate(date) {
+                if (!date) return ''
+                return new Date(date).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                })
+            }
+        }
     }
 </script>
 
@@ -107,8 +145,9 @@
             flex-direction: row;
             justify-content: space-between;
             align-items: flex-end;
-            gap: 4rem;
+            gap: 2rem;
             .content {
+                flex: 0 0 calc(60% - 2rem);
                 .title {
                     margin-top: 0.55rem;
                     font-weight: 700;
@@ -120,6 +159,29 @@
                         text-decoration: underline;
                     }
                 }
+            }
+            .dates {
+                flex: 0 0 25%;
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+                align-items: flex-start;
+                // align-self: flex-start;
+                gap: 2rem;
+                .publication_date,
+                .revision_date {
+                    flex: 0 0 calc(50% - 1rem);
+                    font-size: 0.75rem;
+                    .title {
+                        font-weight: 600;
+                    }
+                    .value {}
+                }
+            }
+            .link {
+                display: block;
+                flex: 0 0 calc(15% - 2rem);
+                text-align: right;
             }
         }
     }
