@@ -8,7 +8,9 @@ COPY node_modules node_modules
 
 COPY package.json package.json
 
-COPY nuxt.config.js nuxt.config.js
+COPY ssr.nuxt.config.js ssr.nuxt.config.js
+
+COPY static.nuxt.config.js static.nuxt.config.js
 
 COPY static static
 
@@ -20,4 +22,4 @@ COPY utils utils
 
 EXPOSE 3000 8090
 
-CMD ["sh", "-c", "yarn start"]
+CMD ["sh", "-c", "npm run ssr:serve"]

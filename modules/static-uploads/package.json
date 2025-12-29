@@ -1,0 +1,7 @@
+{
+    "name": "static-uploads",
+    "description": "Download an make uploads availables in static build",
+    "author": "Kaiko",
+    "main": "module.js",
+    "license": "MIT"
+}

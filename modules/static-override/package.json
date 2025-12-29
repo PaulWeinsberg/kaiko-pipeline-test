@@ -1,0 +1,7 @@
+{
+    "name": "static-override",
+    "description": "Override URLs post static generation",
+    "author": "Kaiko",
+    "main": "module.js",
+    "license": "MIT"
+}

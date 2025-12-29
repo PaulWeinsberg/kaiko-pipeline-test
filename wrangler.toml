@@ -1,0 +1,7 @@
+name = "website-institutional-prod"
+compatibility_date = "2025-08-29"
+
+[assets]
+directory = "./dist"
+not_found_handling = "404-page"
+html_handling = "drop-trailing-slash"

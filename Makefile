@@ -9,12 +9,18 @@ DOCKER ?= docker run \
 		--interactive \
 		--tty \
 		--rm \
+		-e"API_KEY" \
+		-e"API_UPLOADS_URL" \
+		-e"API_URL" \
+		-e"GTM_DEBUG" \
+		-e"GTM_ENABLE" \
 		-e"HOME=$(WORKDIR)" \
 		-e"NODE_ENV" \
-		-e"BASE_URL" \
+		-e"SSR_HOST" \
+		-e"SSR_PROTOCOL" \
+		-e"STATIC_HOST" \
+		-e"STATIC_PROTOCOL" \
 		-e"WP_URL" \
-		-e"API_URL" \
-		-e"API_KEY" \
 		--user="$(UIDGID)" \
 		--volume="$(shell pwd):$(WORKDIR)" \
 		--workdir="$(WORKDIR)" \
@@ -25,15 +31,15 @@ DOCKER ?= docker run \
 
 # Install the application
 install:
-	$(DOCKER) yarn install
+	$(DOCKER) npm install
 
 # Build the Docker image
 build: install
-	$(DOCKER) yarn build
+	$(DOCKER) npm run ssr:build
 
 # Start the application
 start:
-	$(DOCKER) yarn start
+	$(DOCKER) npm run ssr:serve
 
 # Release the application
 release: build

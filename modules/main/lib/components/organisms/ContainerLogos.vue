@@ -47,10 +47,9 @@
                 return !!title
             },
             style() {
-                const { oneSidePadding, hasTitle } = this
-                if (!hasTitle) return {}
+                const { animate } = this
                 return {
-                    paddingLeft: `${oneSidePadding}px`,
+                    justifyContent: animate ? 'flex-start' : 'center'
                 }
             },
         },
@@ -131,8 +130,8 @@
              * Permet de définir les valeurs dynamiques
              */
             setDynamicValues() {
-                const { $refs } = this
-                this.animate = this.totalWidth > $refs.logos.clientWidth
+                const { content } = this
+                this.animate = content.animate;
             },
             /**
              * Permet de mettre nos éléments HTML en position
@@ -181,7 +180,7 @@
         min-height: 4.3rem;
         .wrapper {
             display: flex;
-            padding: 1.45rem 0;
+            padding: 1.45rem;
             flex: 1;
             .title {
                 text-transform: uppercase;
