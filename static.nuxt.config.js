@@ -233,7 +233,7 @@ export default {
     generate: {
         crawler: false, // we'll explicitly list routes
         fallback: '200.html', // SPA-style fallback; Cloudflare serves 404.html if missing
-        interval: 250,
+        interval: 1500,
         exclude: [/^\/s$/],
         routes: async () => {
             try {
