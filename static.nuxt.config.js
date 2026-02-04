@@ -204,7 +204,7 @@ export default {
     },
 
     render: {
-        asyncScripts: true,
+        asyncScripts: false,
     },
 
     gtm: {
