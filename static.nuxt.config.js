@@ -147,6 +147,7 @@ export default {
         '@nuxt/image',
 
         // Static relatives
+        '~/modules/static-check',
         '~/modules/static-uploads',
         '~/modules/static-override',
         '~/modules/cloudflare-redirects',
@@ -203,7 +204,7 @@ export default {
     },
 
     render: {
-        asyncScripts: true,
+        asyncScripts: false,
     },
 
     gtm: {
@@ -232,7 +233,7 @@ export default {
     generate: {
         crawler: false, // we'll explicitly list routes
         fallback: '200.html', // SPA-style fallback; Cloudflare serves 404.html if missing
-        interval: 250,
+        interval: 1500,
         exclude: [/^\/s$/],
         routes: async () => {
             try {

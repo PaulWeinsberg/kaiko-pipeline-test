@@ -1,0 +1,7 @@
+{
+    "name": "static-check",
+    "description": "Check whether the static build is correctly generated for Cloudflare Pages",
+    "author": "Kaiko",
+    "main": "module.js",
+    "license": "MIT"
+}
