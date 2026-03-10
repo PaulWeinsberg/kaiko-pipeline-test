@@ -40,11 +40,20 @@
                 windowWidth: state => state.general.windowWidth,
             }),
         },
+        mounted() {
+            this.$nuxt.$on('header:click-link', this.clickLink)
+        },
         methods: {
             showChildren({ id }) {
                 this.active = id
             },
             onMouseLeave() {
+                this.resetActive();
+            },
+            clickLink() {
+                this.resetActive();
+            },
+            resetActive() {
                 const { windowWidth } = this
                 if (windowWidth > 1060) {
                     this.$nuxt.$emit('header:reset-active')
