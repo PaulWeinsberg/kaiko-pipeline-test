@@ -69,7 +69,16 @@
                     textBelow: item.text_below_content,
                     class: classNames,
                     link: item.link || null,
-                    isLittle,
+                    isLittle
+                }
+                if (item.activate_corner_icon) {
+                    valuesShared.cornerIcon = {
+                        type: item.corner_icon.type,
+                        image: item.corner_icon.image,
+                        icon: item.corner_icon.icon.icon,
+                        color: item.corner_icon.color,
+                        backgroundColor: item.corner_icon.background_color,
+                    }
                 }
                 if (typeCard === 'ordered')
                     return {
