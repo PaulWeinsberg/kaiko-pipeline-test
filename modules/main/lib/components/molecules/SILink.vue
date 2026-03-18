@@ -8,7 +8,7 @@
         @click="onClick"
     >
         <SIIcon v-if="icon && iconPosition === 'left'" :name="icon" />
-        <span v-if="title" class="si-link-title">{{ title }}</span>
+        <span v-if="title" class="si-link-title" @click="handleLinkClick">{{ title }}</span>
         <slot />
         <SIIcon v-if="icon && iconPosition === 'right'" :name="icon" />
     </a>
@@ -19,13 +19,13 @@
         :target="_target"
     >
         <SIIcon v-if="icon && iconPosition === 'left'" :name="icon" />
-        <span v-if="title" class="si-link-title">{{ title }}</span>
+        <span v-if="title" class="si-link-title" @click="handleLinkClick">{{ title }}</span>
         <slot />
         <SIIcon v-if="icon && iconPosition === 'right'" :name="icon" />
     </NuxtLink>
     <component :is="tag" v-else :class="classNames">
         <SIIcon v-if="icon && iconPosition === 'left'" :name="icon" />
-        <span v-if="title" class="si-link-title">{{ title }}</span>
+        <span v-if="title" class="si-link-title" @click="handleLinkClick">{{ title }}</span>
         <slot />
         <SIIcon v-if="icon && iconPosition === 'right'" :name="icon" />
     </component>
@@ -208,6 +208,9 @@
                 scrollTo(path_, {
                     toVars: { duration: 0.3 },
                 })
+            },
+            handleLinkClick() {
+                this.$emit('click:link')
             },
         },
     }

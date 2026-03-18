@@ -1,6 +1,6 @@
 <template>
     <li class="sub-menu-header-children-item">
-        <SILink :title="title" :path="path" :icon="icon" :target="target">
+        <SILink :title="title" :path="path" :icon="icon" :target="target" @click:link="clickLink">
             <p v-if="excerpt" class="excerpt">{{ excerpt }}</p>
         </SILink>
     </li>
@@ -32,6 +32,11 @@
                 type: String,
                 required: false,
                 default: null,
+            },
+        },
+        methods: {
+            clickLink() {
+                this.$nuxt.$emit('header:click-link')
             },
         },
     }

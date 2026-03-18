@@ -10,6 +10,7 @@
             :icon="icon"
             :target="target"
             :hover="hover"
+            @click:link="clickLink"
         >
             <p v-if="excerpt" class="excerpt">{{ excerpt }}</p>
         </SILink>
@@ -121,8 +122,8 @@
             onMouseLeave() {
                 this.hover = false
             },
-            onClick() {
-                this.$nuxt.$emit('header:close')
+            clickLink() {
+                this.$nuxt.$emit('header:click-link')
             },
         },
     }
