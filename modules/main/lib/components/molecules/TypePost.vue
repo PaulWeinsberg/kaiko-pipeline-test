@@ -8,6 +8,7 @@
     import CardInsightNew from '../molecules/CardInsightNew.vue'
     import CardRedirection from '../molecules/CardRedirection.vue'
     import CardNews from '../molecules/CardNews.vue'
+    import CardResource from './CardResource.vue'
 
     export default {
         name: 'TypePost',
@@ -17,6 +18,7 @@
             CardInsightNew,
             CardRedirection,
             CardNews,
+            CardResource
         },
         props: {
             item: {
@@ -35,6 +37,7 @@
                 insight: 'CardInsightNew',
                 redirection: 'CardRedirection',
                 new: 'CardNews',
+                resource: 'CardResource',
             },
         }),
         methods: {
@@ -80,6 +83,15 @@
                             ...valuesShared,
                             tags: item.taxonomies.tag,
                         }
+                    if (type === 'resource') {
+                        return {
+                            ...valuesShared,
+                            path: item.fields.download_only
+                            ? item.fields.download_file?.url ?? item.fields.download_link
+                            : item.url,
+                            target: item.fields.download_only ? '_blank' : undefined
+                        }
+                    }
                     return valuesShared
                 }
             },

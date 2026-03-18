@@ -10,8 +10,8 @@
         :el-attr="{ class: 'swiper-slide' }"
         v-on="$listeners"
     >
-        <template #label="{ data, item }">
-            <label :for="data.name">
+        <template #label="{ data, item, uniqueId }">
+            <label :for="uniqueId">
                 <SIIcon v-if="item?.fields?.icon" :name="item.fields.icon" />
                 <p>{{ data.label }}</p>
             </label>
