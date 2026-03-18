@@ -125,17 +125,15 @@
                 display: flex;
                 align-items: center;
             }
-            @include parent-has-tag('a', 2) {
-                .title span:not(.si-icon) {
-                    @extend %underlineAnimated;
-                    &:after {
-                        background-color: var(--orange-700);
-                    }
+            .title span:not(.si-icon) {
+                @extend %underlineAnimated;
+                &:after {
+                    background-color: var(--orange-700);
                 }
-                &:hover {
-                    .title span:not(.si-icon) {
-                        @extend %underlineAnimatedHover;
-                    }
+            }
+            &:hover {
+                .title span:not(.si-icon) {
+                    @extend %underlineAnimatedHover;
                 }
             }
         }
