@@ -1,5 +1,23 @@
 <template>
     <li :class="classNames">
+        <div v-if="cornerIcon" class="corner-icon">
+            <div
+                class="wrapper"
+                :class="{ 'background': !!cornerIcon.backgroundColor }"
+                :style="{ 'background-color': cornerIcon.backgroundColor }">
+                <SIIcon
+                    class="media"
+                    v-if="cornerIcon.type === 'icon'"
+                    :name="cornerIcon.icon"
+                    :style="{ 'color': cornerIcon.color }"
+                />
+                <SIImage
+                    v-if="cornerIcon.type === 'image'"
+                    class="media"
+                    :image="cornerIcon.image"
+                />
+            </div>
+        </div>
         <SITitle h4 :title="title" />
         <SIImage v-if="image !== false" :image="image" />
         <SIWys :content="text" />
@@ -29,6 +47,7 @@
     import SILink from './SILink.vue'
     import SIWys from './SIWys.vue'
     import LinkCard from './LinkCard.vue'
+    import SIIcon from '../atoms/SIIcon.vue'
 
     export default {
         name: 'ThreeBlocItemUnordered',
@@ -67,6 +86,11 @@
                 required: false,
                 default: false,
             },
+            cornerIcon: {
+                type: Object,
+                required: false,
+                default: null,
+            },
         },
         computed: {
             ...mapState({
@@ -88,7 +112,27 @@
 <style scoped lang="scss">
     .three-bloc-item-unordered {
         position: relative;
-        .si-title {
+        .corner-icon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 1;
+            .wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                height: 32px;
+                width: 32px;
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+                .media {
+                    width: 26px;
+                    height: 26px;
+                    font-size: 26px;
+                }
+            }
+        }
+        > .si-title {
             @include parent-has-class('.disabled') {
                 color: var(--black-700);
             }
@@ -96,7 +140,7 @@
                 line-height: 1.1rem;
             }
         }
-        .si-image {
+        > .si-image {
             height: 7.15rem;
             margin: 2.4rem auto 0;
             @include parent-has-class('.is-little') {
@@ -110,7 +154,7 @@
                 }
             }
         }
-        .si-wys {
+        > .si-wys {
             margin-top: 2.4rem;
             @include parent-has-class('.is-little') {
                 margin-top: 1.8rem;
