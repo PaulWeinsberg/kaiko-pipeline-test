@@ -117,6 +117,11 @@
                 required: false,
                 default: 'primary',
             },
+            pointer: {
+                type: Boolean,
+                required: false,
+                default: null,
+            },
             hover: {
                 type: Boolean,
                 required: false,
@@ -139,12 +144,14 @@
                     design,
                     iconPosition,
                     hover,
+                    pointer,
                 } = this
                 const classNames = [
                     'si-link',
                     backgroundColor,
                     design,
                     { hover },
+                    { pointer },
                     { 'has-icon': icon },
                     { 'mimic-path': (mimicPath && !path) || !!path },
                     { reverse },
@@ -153,6 +160,7 @@
 
                 if (!btn && link) classNames.push('link')
                 if (btn && !link) classNames.push('btn')
+                if (pointer) classNames.push('pointer')
                 if (icon) classNames.push(`icon-${iconPosition}`)
                 if (isActive && prevent) classNames.push('nuxt-link-active')
                 if (isExactActive && prevent) {
@@ -220,6 +228,10 @@
     .si-link {
         display: flex;
         align-items: center;
+        // Force pointer even with no link behind
+        &.pointer {
+            cursor: pointer;
+        }
         &.link {
             font-weight: 700;
             font-size: 0.8rem;
