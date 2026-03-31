@@ -6,9 +6,11 @@
         :target="_target"
         rel="noopener"
         @click="onClick"
+        @mouseup="handleMouseUp"
+
     >
         <SIIcon v-if="icon && iconPosition === 'left'" :name="icon" />
-        <span v-if="title" class="si-link-title" @click="handleLinkClick">{{ title }}</span>
+        <span v-if="title" class="si-link-title">{{ title }}</span>
         <slot />
         <SIIcon v-if="icon && iconPosition === 'right'" :name="icon" />
     </a>
@@ -17,15 +19,20 @@
         :class="classNames"
         :to="to"
         :target="_target"
+        @mouseup="handleMouseUp"
     >
         <SIIcon v-if="icon && iconPosition === 'left'" :name="icon" />
-        <span v-if="title" class="si-link-title" @click="handleLinkClick">{{ title }}</span>
+        <span v-if="title" class="si-link-title">{{ title }}</span>
         <slot />
         <SIIcon v-if="icon && iconPosition === 'right'" :name="icon" />
     </NuxtLink>
-    <component :is="tag" v-else :class="classNames">
+    <component
+        :is="tag" v-else
+        :class="classNames"
+        @mouseup="handleMouseUp"
+    >
         <SIIcon v-if="icon && iconPosition === 'left'" :name="icon" />
-        <span v-if="title" class="si-link-title" @click="handleLinkClick">{{ title }}</span>
+        <span v-if="title" class="si-link-title">{{ title }}</span>
         <slot />
         <SIIcon v-if="icon && iconPosition === 'right'" :name="icon" />
     </component>
@@ -203,13 +210,14 @@
         methods: {
             onClick(e) {
                 const { isAnchor, path_ } = this
+                this.handleMouseUp();
                 if (!isAnchor) return false
                 e.preventDefault()
                 scrollTo(path_, {
                     toVars: { duration: 0.3 },
                 })
             },
-            handleLinkClick() {
+            handleMouseUp() {
                 this.$emit('click:link')
             },
         },
