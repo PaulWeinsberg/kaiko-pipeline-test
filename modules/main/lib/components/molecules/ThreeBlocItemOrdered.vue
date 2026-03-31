@@ -82,7 +82,7 @@
             },
             disabled: {
                 type: Boolean,
-                required: true,
+                required: false,
             },
             isLittle: {
                 type: Boolean,
