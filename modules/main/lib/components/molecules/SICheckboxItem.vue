@@ -93,6 +93,9 @@
             }
         },
         watch: {
+            checked(newVal) {
+                this.checkedIntern = newVal
+            },
             values(nV) {
                 this.checkedFake = !nV || !nV.length
             },
