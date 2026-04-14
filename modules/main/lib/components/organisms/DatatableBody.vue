@@ -27,6 +27,8 @@
                 :key="row.id"
                 :row="row"
                 :columns="columns"
+                :blocks="row.blocks"
+                :active-tab="activeTab"
             />
         </div>
 
@@ -57,6 +59,10 @@
                 type: Array,
                 required: true,
                 default: () => [],
+            },
+            activeTab: {
+                type: [Number, String],
+                required: true,
             },
         },
         computed: {

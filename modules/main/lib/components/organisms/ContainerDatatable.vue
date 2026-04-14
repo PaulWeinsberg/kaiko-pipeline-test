@@ -10,6 +10,7 @@
         <DatatableBody
             :rows="filteredRows"
             :columns="filteredColumns"
+            :active-tab="activeTab"
         />
     </SectionEdito>
 </template>
