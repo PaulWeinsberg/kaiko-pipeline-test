@@ -76,7 +76,6 @@
         },
         methods: {
             handleTabChange(tabId) {
-                console.log('it runs')
                 this.activeTab = tabId
             },
         },

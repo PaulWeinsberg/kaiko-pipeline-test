@@ -7,6 +7,11 @@
                 v-for="link in block.links"
                 :key="link.url"
                 :href="link.url"
+                btn
+                tag="a"
+                size="xs"
+                icon="c-arrow-right"
+                icon-position="right"
                 target="_blank"
             >
                 {{ link.title }}
@@ -41,7 +46,7 @@
                 }
                 return this.block.tabs.some(tab => tab.term_id === this.activeTab)
             },
-        },
+        }
     }
 </script>
 
@@ -49,30 +54,30 @@
     .datatable-row-block {
         display: flex;
         flex-direction: column;
-        gap: 1.2rem;
+        gap: .5rem;
         padding: 1.2rem;
-        background-color: #f9f9f9;
-        margin-top: 0.8rem;
+        background-color: white;
+        border: 1px solid var(--black-300);
+        border-radius: .5rem;
 
         &__title {
             margin: 0;
-            font-size: 1rem;
+            font-size: .7rem;
             font-weight: 600;
-            color: #333;
+            color: var(--midnight-blue-700);
         }
 
         &__content {
+            font-size: .7rem;
             margin: 0;
             line-height: 1.6;
-            color: #555;
-
-            ul {
-                margin: 0;
-                padding-left: 1.2rem;
+            color: var(--black-500);
+            :deep(ul) {
+                list-style-type: disc;
+                padding-left: 1rem;
             }
-
-            li {
-                margin-bottom: 0.4rem;
+            :deep(ul) ::marker {
+                color: var(--sunflower-700); /* Replace with your desired color */
             }
         }
 

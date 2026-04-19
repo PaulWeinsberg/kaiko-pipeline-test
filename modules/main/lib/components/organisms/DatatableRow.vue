@@ -1,15 +1,24 @@
 <template>
     <div
         class="datatable-row"
-        :class="{ 'datatable-row--toggleable': hasActiveBlocks, 'datatable-row--expanded': isExpanded }"
-        @click="handleRowClick"
+        :class="{ 'datatable-row--toggleable': isToggleable, 'datatable-row--expanded': isExpanded }"
     >
 
-        <div class="datatable-row__cells">
+        <div class="datatable-row__cells" @click="handleRowClick">
             <!-- Row Name Column (Hardcoded First Column) -->
             <div class="datatable-row__cell datatable-row__cell--name">
                 <span class="datatable-row__name">{{ row.name }}</span>
+                <div class="datatable-row__arrow-wrapper">
+                    <SIIcon
+                        v-if="isToggleable"
+                        class="datatable-row__toggle-arrow"
+                        name="c-caret-right"
+                        :class="{ 'datatable-row__toggle-arrow--expanded': isExpanded }"
+                        size="xxs"
+                    />
+                </div>
             </div>
+
 
             <!-- Data Columns with Check Icons -->
             <DatatableCell
@@ -19,26 +28,21 @@
                 :row="row"
                 :column="column"
             />
-
-            <div class="datatable-row__toggle-wrapper">
-                <SIIcon
-                    v-if="hasActiveBlocks"
-                    class="datatable-row__toggle-arrow"
-                    name="c-caret-right"
-                    :class="{ 'datatable-row__toggle-arrow--expanded': isExpanded }"
-                    size="s"
-                />
-            </div>
         </div>
 
         <!-- Blocks Section (Toggleable) -->
-        <div v-if="hasActiveBlocks" class="datatable-row__blocks-wrapper" :class="{ 'datatable-row__blocks-wrapper--expanded': isExpanded }">
-            <DatatableRowBlock
-                v-for="block in blocks"
-                :key="block.id"
-                :block="block"
-                :active-tab="activeTab"
-            />
+        <div v-if="isToggleable" class="datatable-row__toggle-wrapper" :class="{ 'datatable-row__toggle-wrapper--expanded': isExpanded }">
+            <SIWys class="content" v-if="row.content" :content="row.content">
+
+            </SIWys>
+            <div class="blocks">
+                <DatatableRowBlock
+                    v-for="block in blocks"
+                    :key="block.id"
+                    :block="block"
+                    :active-tab="activeTab"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -47,6 +51,7 @@
     import DatatableCell from './DatatableCell.vue'
     import DatatableRowBlock from './DatatableRowBlock.vue'
     import SIIcon from '../atoms/SIIcon.vue'
+    import SIWys from '../molecules/SIWys.vue';
 
     export default {
         name: 'DatatableRow',
@@ -54,6 +59,7 @@
             DatatableCell,
             DatatableRowBlock,
             SIIcon,
+            SIWys,
         },
         props: {
             row: {
@@ -77,26 +83,26 @@
         },
         data() {
             return {
-                isExpanded: true,
+                isExpanded: false,
             }
         },
         computed: {
+            isToggleable() {
+                return this.hasActiveBlocks || Boolean(this.row.content?.length)
+            },
+
             hasActiveBlocks() {
-                // A row is toggleable if it has at least one active block for the current tab
-                if (!this.blocks || !Array.isArray(this.blocks)) {
-                    return false
-                }
                 return this.blocks.some(block => {
                     if (!block.tabs || !Array.isArray(block.tabs)) {
                         return false
                     }
                     return block.tabs.some(tab => tab.term_id === this.activeTab)
-                })
-            },
+                });
+            }
         },
         methods: {
             handleRowClick() {
-                if (this.hasActiveBlocks) {
+                if (this.isToggleable) {
                     this.isExpanded = !this.isExpanded
                 }
             },
@@ -112,7 +118,9 @@
         cursor: default;
 
         &--toggleable {
-            cursor: pointer;
+            .datatable-row__cells {
+                cursor: pointer;
+            }
 
             &:hover {
                 background-color: #f0f0f0;
@@ -138,32 +146,37 @@
             justify-content: center;
 
             &--name {
+                position: relative;
                 justify-content: flex-start;
-                font-weight: 600;
-                font-size: 1rem;
+                flex: 0 0 200px;
+                font-weight: 400;
+                font-size: .8rem;
+                padding-right: 2rem;
             }
         }
 
-        &__toggle-wrapper {
+        &__arrow-wrapper {
             position: absolute;
             top: 50%;
-            transform: translateY(-50%);
             right: 1.2rem;
             transform: translateY(-50%);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.6rem;
         }
 
         &__toggle-arrow {
             display: inline-block;
             font-size: 0.7rem;
-            color: #666;
+            color: var(--black-500);
+            transform: rotate(90deg);
             transition: transform 0.2s ease;
             margin-left: auto;
 
             &--expanded {
-                transform: rotate(90deg);
+                transform: rotate(-90deg);
+                color: var(--sunflower-700);
             }
         }
 
@@ -171,33 +184,25 @@
             display: inline-block;
         }
 
-        &__blocks-wrapper {
+        &__toggle-wrapper {
             display: none;
             background-color: #f9f9f9;
             border-top: 1px solid rgba(0, 0, 0, 0.05);
 
             &--expanded {
+                display: block;
+                padding: 1.2rem;
+            }
+
+            .content {
+                margin-bottom: 1rem;
+            }
+
+            .blocks {
                 display: flex;
                 flex-direction: row;
                 flex-wrap: wrap;
                 gap: 0.8rem;
-                padding: 1.2rem;
-                margin-top: 0.8rem;
-            }
-        }
-
-        @media screen and (max-width: $tabletBreakPoint) {
-            flex-direction: column;
-            gap: 0.8rem;
-            padding: 0.8rem;
-
-            &__cell {
-                padding: 0.4rem 0;
-                justify-content: flex-start;
-            }
-
-            &__cell--name {
-                font-size: 0.9rem;
             }
         }
     }
