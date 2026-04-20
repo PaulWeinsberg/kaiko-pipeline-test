@@ -60,6 +60,7 @@
         border: 1px solid var(--black-300);
         border-radius: .5rem;
 
+        &, * { box-sizing: border-box; }
         &__title {
             margin: 0;
             font-size: .7rem;
@@ -85,21 +86,6 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.8rem;
-        }
-    }
-
-    @media screen and (max-width: $tabletBreakPoint) {
-        .datatable-row-block {
-            padding: 0.8rem;
-            gap: 0.8rem;
-
-            &__title {
-                font-size: 0.9rem;
-            }
-
-            &__content {
-                font-size: 0.9rem;
-            }
         }
     }
 </style>

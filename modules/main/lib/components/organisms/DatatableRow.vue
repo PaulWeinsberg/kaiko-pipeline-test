@@ -116,6 +116,7 @@
         background-color: #fff;
         transition: background-color 0.2s ease;
         cursor: default;
+        &, * { box-sizing: border-box; }
 
         &--toggleable {
             .datatable-row__cells {
@@ -148,8 +149,8 @@
             &--name {
                 position: relative;
                 justify-content: flex-start;
-                flex: 0 0 200px;
-                font-weight: 400;
+                flex: 0 0 300px;
+                font-weight: 500;
                 font-size: .8rem;
                 padding-right: 2rem;
             }
@@ -195,6 +196,7 @@
             }
 
             .content {
+                color: var(--black-500);
                 margin-bottom: 1rem;
             }
 

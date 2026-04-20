@@ -4,6 +4,7 @@
             v-for="tab in tabs"
             :key="tab.id"
             btn
+            tag="button"
             :class="[
                 'datatable-tabs__tab',
                 {
@@ -48,7 +49,7 @@
         justify-content: center;
         align-items: center;
         margin-bottom: 3.2rem;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         gap: 0.8rem;
         width: 100%;
 

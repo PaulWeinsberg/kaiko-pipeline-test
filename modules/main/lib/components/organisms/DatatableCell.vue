@@ -10,6 +10,11 @@
                 size="l"
             />
         </div>
+        <div
+            v-else
+            class="datatable-cell__placeholder"
+        >
+        </div>
     </div>
 </template>
 
@@ -44,14 +49,13 @@
 </script>
 
 <style scoped lang="scss">
-
-
     .datatable-cell {
         width: 100%;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
+        &, * { box-sizing: border-box; }
 
         &__check {
             display: flex;
@@ -59,6 +63,21 @@
             justify-content: center;
             color: #4caf50; /* Green checkmark color */
             font-size: 1.5rem;
+        }
+        &__placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            align-items: center;
+            height: 1rem;
+
+            &::before {
+                content: '';
+                width: .6rem;
+                height: 2px;
+                background-color: var(--black-400);
+                border-radius: 2px;
+            }
         }
     }
 </style>
