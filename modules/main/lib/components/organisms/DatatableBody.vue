@@ -74,7 +74,7 @@
         &__scroller {
             width: 100%;
             overflow-x: auto;
-            padding-bottom: 2rem;
+            padding-bottom: 1rem;
 
             &::-webkit-scrollbar-track {
                 box-shadow: none;
@@ -90,14 +90,14 @@
             &::-webkit-scrollbar-thumb {
                 border-radius: 999px;
                 box-shadow: none;
-                background-color: var(--sunflower-700);
+                background-color: var(--midnight-blue-700);
                 z-index: 2;
             }
             // Check if it is firefox
             @supports (-moz-appearance: none) {
                 // Firefox
                 scrollbar-width: thin; /* 'auto' or 'thin' */
-                scrollbar-color: var(--sunflower-700) transparent;
+                scrollbar-color: var(--midnight-blue-700) transparent;
             }
         }
         &__table {

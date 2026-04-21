@@ -86,6 +86,9 @@
 
 
     .container-datatable {
+        :deep(.datatable-body__scroller) {
+            color: var(--midnight-blue-700);
+        }
         :deep(.si-wrapper) {
             align-items: center;
         }

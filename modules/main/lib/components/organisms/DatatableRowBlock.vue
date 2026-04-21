@@ -4,8 +4,8 @@
         <div class="datatable-row-block__content" v-html="block.content"></div>
         <div class="datatable-row-block__links">
             <SILink
-                v-for="link in block.links"
-                :key="link.url"
+                v-for="(link, index) in block.links"
+                :key="index"
                 :href="link.url"
                 btn
                 tag="a"
