@@ -3,6 +3,7 @@
         <SIForm ref="form" @submit="onSubmit">
             <SIFormRow>
                 <SITextField
+                    v-if="search"
                     class="search"
                     placeholder="Search"
                     name="s"
@@ -57,6 +58,11 @@
             SIForm,
         },
         props: {
+            search: {
+                type: Boolean,
+                required: false,
+                default: false,
+            },
             sort: {
                 type: Boolean,
                 required: false,
