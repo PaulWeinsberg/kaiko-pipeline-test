@@ -17,6 +17,7 @@
                 v-for="item in items"
                 :key="item.id"
                 :type="'resource'"
+                :background="content.background"
                 :item="item"
             />
         </GridPost>
@@ -105,7 +106,7 @@
             },
             items: {
                 get() {
-                    const { items_, grid } = this
+                    const { items_, grid, content } = this
                     if (grid.show_all) {
                         return items_ || grid.data.list
                     } else {

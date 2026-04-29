@@ -142,12 +142,19 @@
     .list-resource {
         .wrapper {
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: flex-end;
-            gap: 2rem;
+            flex-direction: column;
+            gap: 1rem;
+            @media only screen and (min-width: 800px) {
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              align-items: flex-end;
+              gap: 2rem;
+            }
             .content {
-                flex: 0 0 calc(60% - 2rem);
+                @media only screen and (min-width: 800px) {
+                  flex: 1 auto;
+                }
                 .title {
                     margin-top: 0.55rem;
                     font-weight: 700;
@@ -161,13 +168,16 @@
                 }
             }
             .dates {
-                flex: 0 0 25%;
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-end;
                 align-items: flex-start;
                 // align-self: flex-start;
                 gap: 2rem;
+                @media only screen and (min-width: 800px) {
+                  flex: 0 0 25%;
+                  min-width: 280px;
+                }
                 .publication_date,
                 .revision_date {
                     flex: 0 0 calc(50% - 1rem);
@@ -180,8 +190,10 @@
             }
             .link {
                 display: block;
-                flex: 0 0 calc(15% - 2rem);
-                text-align: right;
+                @media only screen and (min-width: 800px) {
+                  flex: 0 0 calc(20% - 2rem);
+                  text-align: right;
+                }
             }
         }
     }

@@ -29,6 +29,11 @@
                 type: [String, Object],
                 required: true,
             },
+            background: {
+                type: Object,
+                required: false,
+                default: null
+            },
         },
         data: () => ({
             tag: {
@@ -42,7 +47,7 @@
         }),
         methods: {
             attr(item) {
-                const { type } = this
+                const { type, background } = this
                 if (type === 'redirection') {
                     return {
                         title: item.customTitle || item.post.title,
@@ -89,7 +94,8 @@
                             path: item.fields.download_only
                             ? item.fields.download_file?.url ?? item.fields.download_link
                             : item.url,
-                            target: item.fields.download_only ? '_blank' : undefined
+                            target: item.fields.download_only ? '_blank' : undefined,
+                            background
                         }
                     }
                     return valuesShared

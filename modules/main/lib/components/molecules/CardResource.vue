@@ -102,6 +102,11 @@
                 required: false,
                 default: 0,
             },
+            background: {
+                type: Object,
+                required: false,
+                default: null
+            },
         },
         computed: {
             ...mapState({
@@ -118,7 +123,7 @@
                 return windowWidth <= 580
             },
             classNames() {
-                const { primary, grid, isMobile, isLittleMobile, hover } = this
+                const { primary, grid, isMobile, isLittleMobile, hover, background } = this
                 return [
                     'card-resource',
                     {
@@ -126,9 +131,10 @@
                             (primary && !isMobile && !grid) ||
                             grid ||
                             isLittleMobile,
+                        'bg-white': background?.background_color === 'white-100'
                     },
                     { grid },
-                    { hover },
+                    { hover }
                 ]
             },
             imageIntern() {
@@ -204,13 +210,13 @@
             flex-direction: column;
             align-items: flex-start;
             width: calc(100% - 14rem);
-            padding: 0.5rem 0.9rem 0.3rem 2rem;
+            padding: 0.75rem;
             box-sizing: border-box;
             margin: 0;
             position: relative;
+            background-color: white;
             @media screen and (max-width: $littleLaptopBreakPoint) {
                 width: calc(100% - 11rem);
-                padding: 0.75rem;
             }
             .head-wrap {
                 display: flex;
@@ -259,6 +265,14 @@
                 }
             }
         }
+        &.bg-white {
+          .container {
+            background: var(--gradient-blue-700);
+            * {
+              color: white;
+            }
+          }
+        }
         &.primary {
             flex-direction: column;
             max-width: 31.8rem;
@@ -267,7 +281,6 @@
             }
             .container {
                 width: 100%;
-                padding: 1.35rem 0 0;
                 .title {
                     margin-top: 1.05rem;
                 }
