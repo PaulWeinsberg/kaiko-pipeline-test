@@ -3,6 +3,7 @@
         <template v-if="grid.show_all" #afterTitle>
             <PanelFilterTypeResource
                 :filters="filters_"
+                :sort="grid.allow_sort ?? false"
                 @filters:change="filterPosts"
             />
         </template>

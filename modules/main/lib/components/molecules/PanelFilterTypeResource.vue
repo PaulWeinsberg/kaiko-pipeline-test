@@ -12,6 +12,7 @@
                     @input="onInput"
                 />
                 <SISelect
+                    v-if="sort"
                     ref="order"
                     name="order"
                     value="DESC"
@@ -19,7 +20,7 @@
                     @input="onInput"
                 />
             </SIFormRow>
-            <SIFormRow v-if="filters" class="start">
+            <SIFormRow v-if="filters && filters[filterTag]?.length" class="start">
                 <SIArrow ref="prev" icon="c-arrow-left" />
                 <FiltersPostType
                     v-if="filters[filterTag]"
@@ -56,6 +57,11 @@
             SIForm,
         },
         props: {
+            sort: {
+                type: Boolean,
+                required: false,
+                default: false,
+            },
             filters: {
                 type: Object,
                 required: false,
