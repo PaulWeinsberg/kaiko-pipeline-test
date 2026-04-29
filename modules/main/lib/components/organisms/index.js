@@ -35,6 +35,11 @@ import ContainerGridNews from './ContainerGridNews.vue'
 import SIFitText from './SIFitText.vue'
 import ContainerGridResource from './ContainerGridResource.vue'
 import ContainerListResource from './ContainerListResource.vue'
+import ContainerDatatable from './ContainerDatatable.vue'
+import DatatableTabs from './DatatableTabs.vue'
+import DatatableBody from './DatatableBody.vue'
+import DatatableRow from './DatatableRow.vue'
+import DatatableCell from './DatatableCell.vue'
 
 export default {
     HeroPostObject,
@@ -74,4 +79,9 @@ export default {
     ContainerProduct,
     ContainerGridNews,
     SIFitText,
+    ContainerDatatable,
+    DatatableTabs,
+    DatatableBody,
+    DatatableRow,
+    DatatableCell,
 }
