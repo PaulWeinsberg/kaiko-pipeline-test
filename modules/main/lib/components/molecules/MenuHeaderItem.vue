@@ -3,6 +3,7 @@
         <SILink
             :path="path"
             :target="target"
+            pointer
             tag="div"
             @mouseenter.native="onMouseEnter"
             @click.native="onClick"
