@@ -95,6 +95,7 @@
                             ? item.fields.download_file?.url ?? item.fields.download_link
                             : item.url,
                             target: item.fields.download_only ? '_blank' : undefined,
+                            hideCategories: item.hideCategories,
                             background
                         }
                     }

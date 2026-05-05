@@ -18,7 +18,7 @@
                 :key="item.id"
                 :type="'resource'"
                 :background="content.background"
-                :item="item"
+                :item="{ ...item, hideCategories: grid.hide_categories }"
             />
         </GridPost>
         <SIPagination

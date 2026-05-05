@@ -9,7 +9,7 @@
             <div class="head-wrap">
                 <DateText v-if="date" :date="date">
                 </DateText>
-                <span v-if="category" class="category">
+                <span v-if="category && !hideCategories" class="category">
                     {{ category.name }}
                 </span>
             </div>
@@ -106,7 +106,12 @@
                 type: Object,
                 required: false,
                 default: null
-            },
+          },
+          hideCategories: {
+                type: Boolean,
+                required: false,
+                default: null
+            }
         },
         computed: {
             ...mapState({
