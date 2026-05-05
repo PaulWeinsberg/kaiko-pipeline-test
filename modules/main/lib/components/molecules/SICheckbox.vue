@@ -67,6 +67,11 @@
                 required: false,
                 default: null,
             },
+            maxSelection: {
+                type: Number,
+                required: false,
+                default: null,
+            },
             elAttr: {
                 type: Object,
                 required: false,
@@ -75,6 +80,7 @@
         },
         data() {
             return {
+                valueInternal: [],
                 forceRenderKey: 0
             }
         },
@@ -88,14 +94,17 @@
                     itemName,
                     valueInternal,
                 } = this
-                if (!all) return items
+                const itemsIntern = items.map(item => ({
+                    ...item,
+                    checked: valueInternal?.some(el => el.name === item[itemName])
+                }))
+                if (!all) return itemsIntern
 
                 const allValues = { all: true }
                 allValues[itemText] = all
                 allValues[itemName] = allName
                 allValues.checked = !valueInternal || !valueInternal.length
-
-                return [allValues, ...items]
+                return [allValues, ...itemsIntern]
             }
         },
         mounted() {
@@ -139,6 +148,19 @@
              * @param {boolean} checked Est-ce qu'elle ai coché ou non
              */
             onInputIntern({ name, checked }) {
+                const { maxSelection } = this
+                const currentValue = this.valueInternal || []
+
+                // Calculate current count excluding the item being toggled
+                const currentCount = currentValue.filter(el => el.name !== name).length
+
+                // If checking an item and limit is reached, remove the first item (cycling behavior)
+                if (checked && maxSelection !== null && currentCount >= maxSelection) {
+                    this.valueInternal = [{ name, checked }, ...currentValue.slice(1)]
+                    this.emitInput()
+                    return
+                }
+
                 this.valueInternal = this.getCheckboxValues({
                     name,
                     checked,

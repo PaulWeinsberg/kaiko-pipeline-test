@@ -82,7 +82,7 @@
             },
             disabled: {
                 type: Boolean,
-                required: true,
+                required: false,
             },
             isLittle: {
                 type: Boolean,
@@ -127,21 +127,21 @@
         position: relative;
         .corner-icon {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 24px;
+            right: 24px;
             z-index: 1;
             .wrapper {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 border-radius: 4px;
-                height: 32px;
-                width: 32px;
+                height: 48px;
+                width: 48px;
                 filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
                 .media {
-                    width: 26px;
-                    height: 26px;
-                    font-size: 26px;
+                    width: 36px;
+                    height: 36px;
+                    font-size: 36px;
                 }
             }
         }
