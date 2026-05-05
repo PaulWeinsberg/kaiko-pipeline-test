@@ -6,6 +6,7 @@
         item-name="slug"
         all="All"
         all-name="all"
+        :max-selection="1"
         :name="tags"
         :el-attr="{ class: 'swiper-slide' }"
         v-on="$listeners"
@@ -71,9 +72,12 @@
                     flex-direction: column;
                     justify-content: center;
                     align-items: center;
+                    text-align: center;
                     width: 5.75rem;
                     height: 5.75rem;
                     cursor: pointer;
+                    padding: .5rem;
+                    box-sizing: border-box;
                     .si-icon {
                         font-size: 1.2rem;
                         margin-bottom: 0.6rem;
