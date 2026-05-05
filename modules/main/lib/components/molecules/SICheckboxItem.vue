@@ -14,8 +14,8 @@
                 <SIIcon v-if="checkedIntern" name="check" color="white-100" />
             </span>
         </div>
-        <slot name="label" :data="{ name, label }" :uniqueId="uniqueId" />
-        <label v-if="!$scopedSlots.label" :for="uniqueId">{{ label }}</label>
+        <slot name="label" :data="{ name, label: fromHtml(label) }" :uniqueId="uniqueId" />
+        <label v-if="!$scopedSlots.label" :for="uniqueId">{{ fromHtml(label) }}</label>
     </div>
 </template>
 
@@ -101,6 +101,15 @@
             },
         },
         methods: {
+            fromHtml(unsafe) {
+                return unsafe
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    .replace(/&#\d+;/g, (m) => String.fromCharCode(parseInt(m.slice(2), 10).toString(10)))
+            },
             onChange() {
                 const { name, checkedIntern, allName } = this
                 if (allName === name && checkedIntern) return
