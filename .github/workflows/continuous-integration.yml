@@ -12,13 +12,13 @@ env:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: kaiko-arc-small
     concurrency:
       cancel-in-progress: true
       group: ${{ github.workflow }}-build-${{ github.event.pull_request.number || github.ref }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/iron
       - run: make build
