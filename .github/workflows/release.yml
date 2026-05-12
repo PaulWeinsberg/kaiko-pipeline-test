@@ -8,6 +8,7 @@ concurrency:
 on:
     push:
         tags: ['*']
+    workflow_dispatch:
 
 env:
     COREPACK_ENABLE_AUTO_PIN: 0
@@ -15,7 +16,7 @@ env:
 
 jobs:
     release:
-        runs-on: self-hosted
+        runs-on: kaiko-arc-small
         permissions:
             contents: write
         steps:
@@ -49,6 +50,7 @@ jobs:
                   API_KEY: '-)<X[4J9Y!zxam;S'
                   WRANGLER_WORKER_NAME: website-institutional-prod
             - name: Release
+              if: startsWith(github.ref, 'refs/tags/')
               uses: softprops/action-gh-release@v2
               with:
                   files: build/${{ steps.release.outputs.binary }}
