@@ -1,0 +1,26 @@
+name: release-please
+
+# Maintains a single Release PR (accumulating changes since the last tag, CHANGELOG.md
+# grouped by type with the WP-XX scope on each entry). The tag is created only when the
+# Release PR is merged. See SRE-1570 / the portal design doc.
+on:
+  push:
+    branches: ["master"]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        # Phase 1 uses GITHUB_TOKEN: it can open the Release PR and create the tag on
+        # merge. NOTE (SRE-1570): a tag created with GITHUB_TOKEN does NOT trigger other
+        # workflows — when we wire the build/deploy pipeline, switch this to the restricted
+        # GitHub App / PAT so the merged bare tag triggers release.yml.
+        # Requires the repo setting "Allow GitHub Actions to create and approve pull
+        # requests" to be enabled.
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
