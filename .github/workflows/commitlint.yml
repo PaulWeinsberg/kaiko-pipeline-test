@@ -1,0 +1,22 @@
+name: commitlint
+
+# Validate every commit of a PR against commitlint.config.js (Conventional Commits +
+# the WP-XX scope convention). We rebase-and-merge, so each commit must be valid on
+# its own. For a same-repo PR, GitHub runs the workflow definition from the PR head, so
+# this check runs on its own PR too (it validated this very PR when it was introduced).
+on:
+  pull_request:
+    branches: ["master"]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v6
