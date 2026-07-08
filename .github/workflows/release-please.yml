@@ -15,12 +15,16 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v4
-        # Phase 1 uses GITHUB_TOKEN: it can open the Release PR and create the tag on
-        # merge. NOTE (SRE-1570): a tag created with GITHUB_TOKEN does NOT trigger other
-        # workflows — when we wire the build/deploy pipeline, switch this to the restricted
-        # GitHub App / PAT so the merged bare tag triggers release.yml.
-        # Requires the repo setting "Allow GitHub Actions to create and approve pull
-        # requests" to be enabled.
+      # Authenticate as the kaiko-website-deploy-bot GitHub App (app-id + private key in
+      # secrets, provisioned via terraform/github). The App token lets release-please open
+      # the Release PR without the org "allow Actions to create PRs" toggle, and — key —
+      # the bare tag it creates on Release-PR merge triggers release.yml (a GITHUB_TOKEN-
+      # created tag would not). SRE-1570.
+      - uses: actions/create-github-app-token@v2
+        id: app-token
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          app-id: ${{ secrets.WEBSITE_DEPLOY_BOT_APP_ID }}
+          private-key: ${{ secrets.WEBSITE_DEPLOY_BOT_PRIVATE_KEY }}
+      - uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
