@@ -20,10 +20,10 @@ jobs:
       # the Release PR without the org "allow Actions to create PRs" toggle, and — key —
       # the bare tag it creates on Release-PR merge triggers release.yml (a GITHUB_TOKEN-
       # created tag would not). SRE-1570.
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@v3
         id: app-token
         with:
-          app-id: ${{ secrets.WEBSITE_DEPLOY_BOT_APP_ID }}
+          client-id: ${{ secrets.WEBSITE_DEPLOY_BOT_APP_ID }}
           private-key: ${{ secrets.WEBSITE_DEPLOY_BOT_PRIVATE_KEY }}
       - uses: googleapis/release-please-action@v4
         with:
