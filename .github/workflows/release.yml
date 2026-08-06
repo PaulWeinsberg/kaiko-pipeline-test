@@ -45,7 +45,6 @@ jobs:
                   STATIC_HOST: www.kaiko.com
                   STATIC_PROTOCOL: https
                   WP_URL: https://web-bo-i.kaiko.com/
-                  API_UPLOADS_URL: https://web-bo-i.kaiko.com/wp-content/uploads
                   API_URL: https://web-bo-i.kaiko.com/wp-json/spin-api/
                   API_KEY: '-)<X[4J9Y!zxam;S'
                   WRANGLER_WORKER_NAME: website-institutional-prod

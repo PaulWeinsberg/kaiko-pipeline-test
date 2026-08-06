@@ -10,7 +10,6 @@ env:
   STATIC_PROTOCOL: https
   API_KEY: -)<X[4J9Y!zxam;S
   NODE_ENV: production
-  API_UPLOADS_URL: https://web-bo-i.kaiko.com/wp-content/uploads
   API_URL: https://web-bo-i.kaiko.com/wp-json/spin-api
   WP_URL: https://web-bo-i.kaiko.com
   WRANGLER_WORKER_NAME: website-institutional-prod

@@ -148,7 +148,6 @@ export default {
 
         // Static relatives
         '~/modules/static-check',
-        '~/modules/static-uploads',
         '~/modules/static-override',
         '~/modules/cloudflare-redirects',
     ],

@@ -10,7 +10,6 @@ DOCKER ?= docker run \
 		--tty \
 		--rm \
 		-e"API_KEY" \
-		-e"API_UPLOADS_URL" \
 		-e"API_URL" \
 		-e"GTM_DEBUG" \
 		-e"GTM_ENABLE" \
