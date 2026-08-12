@@ -17,6 +17,14 @@ env:
 jobs:
     release:
         runs-on: kaiko-arc-small
+        # The tag suffix is what selects the environment, and therefore the hostnames baked into
+        # the SSR image: release-please cuts `X.Y.Z-preprod.N` for preprod and a bare `X.Y.Z` for
+        # production. Both environments allow `master` and tags only, so a build can no longer be
+        # cut from the legacy preprod branch. A manual `workflow_dispatch` run resolves to
+        # `production` (ref_name is a branch, not a tag) and tags the image after the branch, as
+        # it already did.
+        environment:
+            name: ${{ contains(github.ref_name, '-preprod') && 'preprod' || 'production' }}
         permissions:
             contents: write
         steps:
@@ -40,14 +48,13 @@ jobs:
               env:
                   KAIKO_GCR_WRITER: ${{ secrets.KAIKO_GCR_WRITER }}
                   NODE_ENV: prod
-                  SSR_HOST: preview-www.kaiko.com
+                  SSR_HOST: ${{ vars.SSR_HOST }}
                   SSR_PROTOCOL: https
-                  STATIC_HOST: www.kaiko.com
+                  STATIC_HOST: ${{ vars.STATIC_HOST }}
                   STATIC_PROTOCOL: https
-                  WP_URL: https://web-bo-i.kaiko.com/
-                  API_URL: https://web-bo-i.kaiko.com/wp-json/spin-api/
-                  API_KEY: '-)<X[4J9Y!zxam;S'
-                  WRANGLER_WORKER_NAME: website-institutional-prod
+                  WP_URL: ${{ vars.WP_URL }}
+                  API_URL: ${{ vars.API_URL }}
+                  API_KEY: ${{ vars.API_KEY }}
             - name: Release
               if: startsWith(github.ref, 'refs/tags/')
               uses: softprops/action-gh-release@v3
