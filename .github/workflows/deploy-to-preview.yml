@@ -1,0 +1,145 @@
+---
+name: deploy to preview
+
+# Marketing's "deploy a change" button: take the CODE that is on master and put it on the preview
+# site of an environment (preview-www.kaiko.ovh / preview-www.kaiko.com). It is the counterpart of
+# `deploy to static`, and the two are named after their DESTINATION, not after what they carry —
+# a change to the menu or to the styling is code, yet it only becomes visible to the public once
+# the static site is rebuilt, so "content workflow" vs "code workflow" would have been a lie.
+#
+# This workflow builds nothing. It creates the tag; the `release` workflow reacts to the tag and
+# builds the SSR image; `release` then opens the imageTag bump PR on kubernetes-deployments.
+#
+# The two targets are NOT the same operation, because the two tags do not come from the same place:
+#
+#   preprod    -> cut `X.Y.Z-preprod.N` on master HEAD. X.Y.Z is read from the open Release PR, so
+#                 the preprod tag and the eventual production tag share the same number by
+#                 construction and nobody types a version into a form.
+#   production -> the production tag is created by release-please when the Release PR is merged, so
+#                 the only thing to do here is merge that PR — gated on master HEAD being exactly
+#                 the commit a preprod tag already points at, i.e. on the preview of preprod having
+#                 validated this code and no other.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Which preview to deploy to
+        type: choice
+        required: true
+        options:
+          - preprod
+          - production
+
+# Two clicks in a row must not race for the same counter, nor merge the same Release PR twice.
+concurrency:
+  group: deploy-to-preview-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    # No `environment:` — nothing is deployed here. `release` resolves the environment from the
+    # suffix of the tag this job produces.
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      # Same GitHub App as release-please, for the same reason: a tag pushed with the default
+      # GITHUB_TOKEN does NOT trigger other workflows, so `release` would never fire and no image
+      # would ever be built. The App token is a real actor.
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ secrets.WEBSITE_DEPLOY_BOT_APP_ID }}
+          private-key: ${{ secrets.WEBSITE_DEPLOY_BOT_PRIVATE_KEY }}
+
+      # Full history and tags: the preprod counter and the production guard both read the tags.
+      - uses: actions/checkout@v6
+        with:
+          ref: master
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Deploy master to the ${{ inputs.target }} preview
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          set -euo pipefail
+
+          # Both "nothing to do" cases end here rather than building something pointless. The
+          # message lands in the job summary, which is what a non-technical user is shown.
+          fail() {
+            echo "::error::$1"
+            { echo "### Nothing deployed"; echo; echo "$1"; } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
+
+          # release-please keeps exactly one open Release PR, labelled `autorelease: pending`. Its
+          # head branch carries the manifest holding the version master will be released as — that
+          # is the authoritative next version, not the one in package.json (still the previous one).
+          pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open \
+            --label 'autorelease: pending' --json number,headRefName \
+            --jq '.[0] | "\(.number) \(.headRefName)"' || true)
+          [ -n "$pr" ] || fail "No open Release PR: everything merged on master is already released, so there is no change to deploy."
+          pr_number=${pr%% *}
+          head_ref=${pr#* }
+
+          version=$(gh api "repos/${GITHUB_REPOSITORY}/contents/.release-please-manifest.json?ref=${head_ref}" \
+            -H 'Accept: application/vnd.github.raw' | jq -r '.["."] // empty')
+          [ -n "$version" ] || fail "Could not read the version from ${head_ref}."
+
+          sha=$(git rev-parse HEAD)
+
+          case "$TARGET" in
+            preprod)
+              # Already tagged at this exact commit? Then master has not moved since the last
+              # preprod deploy and a new tag would build a byte-identical image under a new number.
+              existing=$(git tag --points-at HEAD --list "${version}-preprod*" | head -1)
+              [ -z "$existing" ] || fail "master has not changed since ${existing} was deployed to the preprod preview, so there is nothing new to build. To refresh the public site, use deploy to static instead."
+
+              # Highest N already used for this version, 0 if none. A legacy bare `X.Y.Z-preprod`
+              # (the convention up to 3.2.1) counts as 1, so re-deploying such a version lands
+              # on .2. Immutable tags, deliberately: a version goes to preprod several times while
+              # it is being fixed, and a moving tag would leave the cluster pulling the same
+              # imageTag for different code.
+              last=$(git tag --list "${version}-preprod" "${version}-preprod.*" \
+                | sed "s/^${version}-preprod\.\{0,1\}//" \
+                | sed 's/^$/1/' \
+                | sort -n | tail -1)
+              tag="${version}-preprod.$(( ${last:-0} + 1 ))"
+
+              git tag "$tag" HEAD
+              git push origin "refs/tags/${tag}"
+
+              {
+                echo "### Deploying ${tag} to the preprod preview"
+                echo
+                echo "- commit \`$(git rev-parse --short HEAD)\` on master"
+                echo "- from Release PR #${pr_number} (${version})"
+                echo "- \`release\` is now building the image, then opens the imageTag PR on kubernetes-deployments for SRE to approve"
+              } >> "$GITHUB_STEP_SUMMARY"
+              ;;
+
+            production)
+              # The gate. Production may only receive code the preprod preview actually ran, so
+              # master HEAD must be the very commit a preprod tag of THIS version points at. Any
+              # commit merged after the preprod deploy invalidates it — deploy to preprod again.
+              validated=$(git tag --points-at "$sha" --list "${version}-preprod" "${version}-preprod.*" | head -1)
+              [ -n "$validated" ] || fail "master HEAD has not been validated on the preprod preview for ${version}. Run deploy to preview on preprod first, check preview-www.kaiko.ovh, then come back."
+
+              # Merging the Release PR is what makes the version real: release-please then creates
+              # the bare `X.Y.Z` tag, which `release` turns into the production image. Rebase, not
+              # merge commit — merge commits are disabled on this repository (SRE-1570).
+              gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --rebase
+
+              {
+                echo "### Releasing ${version} to the production preview"
+                echo
+                echo "- validated on the preprod preview as \`${validated}\`"
+                echo "- Release PR #${pr_number} merged; release-please now tags \`${version}\`"
+                echo "- \`release\` then builds the image and opens the imageTag PR on kubernetes-deployments for SRE to approve"
+              } >> "$GITHUB_STEP_SUMMARY"
+              ;;
+          esac

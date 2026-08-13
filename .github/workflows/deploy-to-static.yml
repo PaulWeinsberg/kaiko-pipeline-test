@@ -1,0 +1,146 @@
+---
+name: deploy to static
+
+# Marketing's "publish" button: rebuild the bundle, promote the media, push the public static site
+# to its Cloudflare worker. `target` selects the environment and the values come from the matching
+# GitHub Environment instead of from a branch.
+#
+# Named after its DESTINATION, not after what it carries. It is what makes BOTH a new article and a
+# new menu or styling visible on the public site: the static bundle is the only path to
+# www.kaiko.* , whatever the change was. Its counterpart is `deploy to preview`, which puts code on
+# the preview SSR site.
+#
+# It does NOT build from master. It builds from the tag the PREVIEW of that environment is
+# currently running — read from the imageTag in kubernetes-deployments. Building from master would
+# quietly publish any commit merged since the preview validation, which is exactly the guarantee
+# marketing thinks it is getting when it validates on the preview first. Fixing the code ref costs
+# nothing, because the CONTENT is refetched from WordPress at build time either way: freezing the
+# code on a tag never blocks a content publication.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Which site to publish
+        type: choice
+        required: true
+        options:
+          - preprod
+          - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Binds `vars.*` below to the preprod or production values. Both environments allow only
+    # `master` and tags, so this cannot be run off the legacy preprod branch.
+    environment:
+      name: ${{ inputs.target }}
+    permissions:
+      contents: read
+      id-token: write
+    # Job level, not workflow level: environment variables only resolve once a job has declared
+    # the environment they belong to.
+    env:
+      SSR_HOST: ${{ vars.SSR_HOST }}
+      SSR_PROTOCOL: https
+      STATIC_HOST: ${{ vars.STATIC_HOST }}
+      STATIC_PROTOCOL: https
+      API_KEY: ${{ vars.API_KEY }}
+      NODE_ENV: production
+      API_URL: ${{ vars.API_URL }}
+      WP_URL: ${{ vars.WP_URL }}
+      WRANGLER_WORKER_NAME: ${{ vars.WRANGLER_WORKER_NAME }}
+      # Media: the backoffice writes and serves from the preview pair, the site from the public
+      # one. The deploy copies the first into the second, and the build rewrites the URLs.
+      MEDIA_PREVIEW_URL: ${{ vars.MEDIA_PREVIEW_URL }}
+      MEDIA_PUBLIC_URL: ${{ vars.MEDIA_PUBLIC_URL }}
+      MEDIA_PREVIEW_BUCKET: ${{ vars.MEDIA_PREVIEW_BUCKET }}
+      MEDIA_PUBLIC_BUCKET: ${{ vars.MEDIA_PUBLIC_BUCKET }}
+      # Resource paths, not credentials: the OIDC token minted for this job is the credential.
+      # The service account may read both buckets and create objects in the public one — it has
+      # no delete right, which is what keeps the sync additive. The provider is repository-wide
+      # (one per org), the impersonated account is per environment.
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_MEDIA_SYNC_SA: ${{ vars.GCP_MEDIA_SYNC_SA }}
+    steps:
+      # The App token is used only to read kubernetes-deployments (a private repo) below.
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ secrets.WEBSITE_DEPLOY_BOT_APP_ID }}
+          private-key: ${{ secrets.WEBSITE_DEPLOY_BOT_PRIVATE_KEY }}
+          repositories: kubernetes-deployments
+
+      # What is the preview of this environment actually running? Not "the latest tag" — the
+      # imageTag of the matching component in the GKE overlay, which is the deployed truth. If the
+      # bump PR is still waiting for an SRE approval, this correctly resolves to the PREVIOUS
+      # version: the static site never runs ahead of the preview.
+      - name: Resolve the tag running on the ${{ inputs.target }} preview
+        id: ref
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          # The overlay names its components `preprod` and `prod`, not `production`.
+          COMPONENT: ${{ inputs.target == 'production' && 'prod' || 'preprod' }}
+        run: |
+          set -euo pipefail
+          gh api 'repos/kaikodata/kubernetes-deployments/contents/internal/ws-institutional/prd-gke-kaikosvc/values.yaml' \
+            -H 'Accept: application/vnd.github.raw' > /tmp/values.yaml
+
+          # Anchored on the `components:` block on purpose: `secretsExtra` above it declares
+          # entries with the very same `- name: preprod` / `- name: prod` keys.
+          tag=$(awk -v c="$COMPONENT" '
+            /^  components:/ { in_comp = 1; next }
+            in_comp && $0 ~ "^    - name: " c "$" { found = 1; next }
+            found && /^    - name: / { exit }
+            found && /^      imageTag:/ { v = $2; gsub(/"/, "", v); print v; exit }
+          ' /tmp/values.yaml)
+
+          if [ -z "$tag" ]; then
+            echo "::error::No imageTag found for component ${COMPONENT} in the ws-institutional overlay."
+            exit 1
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "### Publishing the code of \`${tag}\` to ${STATIC_HOST}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "That is what the ${{ inputs.target }} preview is running. Content is refetched from WordPress, so it is always current." >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.ref.outputs.tag }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/jod
+      - run: npm install
+      - run: npm run cf:build
+
+      # Publish the media the bundle now references, before the bundle itself: the pages
+      # about to go live point at MEDIA_PUBLIC_URL, so the objects have to be there first.
+      # No --delete-unmatched-destination-objects, deliberately — the public bucket only
+      # ever grows, so an older bundle rolled back on the worker still finds its images.
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_MEDIA_SYNC_SA }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Sync the preview media into the public bucket
+        run: |
+          gcloud storage rsync \
+            --recursive \
+            "gs://${MEDIA_PREVIEW_BUCKET}" \
+            "gs://${MEDIA_PUBLIC_BUCKET}"
+
+      - run: |
+          cat > wrangler.toml << EOF
+          name = "${{ env.WRANGLER_WORKER_NAME }}"
+          compatibility_date = "2025-08-29"
+
+          [assets]
+          directory = "./dist"
+          not_found_handling = "404-page"
+          html_handling = "drop-trailing-slash"
+          EOF
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: deploy

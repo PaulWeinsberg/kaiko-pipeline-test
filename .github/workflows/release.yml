@@ -18,11 +18,13 @@ jobs:
     release:
         runs-on: kaiko-arc-small
         # The tag suffix is what selects the environment, and therefore the hostnames baked into
-        # the SSR image: release-please cuts `X.Y.Z-preprod.N` for preprod and a bare `X.Y.Z` for
-        # production. Both environments allow `master` and tags only, so a build can no longer be
-        # cut from the legacy preprod branch. A manual `workflow_dispatch` run resolves to
-        # `production` (ref_name is a branch, not a tag) and tags the image after the branch, as
-        # it already did.
+        # the SSR image: `X.Y.Z-preprod.N` is preprod, a bare `X.Y.Z` is production. The two tags
+        # are cut by different things — `release-preprod` on demand for the first, release-please
+        # on Release-PR merge for the second — but both carry the same X.Y.Z, so the image that
+        # goes to production is the same code preprod was validating. Both environments allow
+        # `master` and tags only, so a build can no longer be cut from the legacy preprod branch.
+        # A manual `workflow_dispatch` run resolves to `production` (ref_name is a branch, not a
+        # tag) and tags the image after the branch, as it already did.
         environment:
             name: ${{ contains(github.ref_name, '-preprod') && 'preprod' || 'production' }}
         # Read-only: the job builds and pushes to gcr.io, it no longer creates a GitHub Release
@@ -58,3 +60,117 @@ jobs:
             - name: Cleanup docker config
               if: always()
               run: rm -rf "$DOCKER_CONFIG"
+
+    # An image that nobody deploys is not a deployment. This job closes the gap between "the
+    # image exists in gcr.io" and "the preview runs it", by opening the imageTag bump PR on
+    # kubernetes-deployments with auto-merge enabled. Branch protection there requires the
+    # `merge-gate` check plus a CODEOWNERS approval (SRE / platform-engineering own
+    # /internal/ws-institutional/), so the PR sits until an SRE approves and merges itself the
+    # moment they do — the human gate stays, the busywork does not.
+    #
+    # It lives here rather than in `deploy to preview` because the tag is not always cut by that
+    # workflow: the production tag is created by release-please when the Release PR is merged.
+    # Hanging the bump off the build means every image gets its PR, whoever cut the tag.
+    create-kub-pr:
+        needs: release
+        # `workflow_dispatch` runs tag the image after a branch, which is not a deployable
+        # version — only real tags get a PR.
+        if: startsWith(github.ref, 'refs/tags/')
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/create-github-app-token@v3
+              id: app-token
+              with:
+                  client-id: ${{ secrets.WEBSITE_DEPLOY_BOT_APP_ID }}
+                  private-key: ${{ secrets.WEBSITE_DEPLOY_BOT_PRIVATE_KEY }}
+                  owner: ${{ github.repository_owner }}
+                  repositories: kubernetes-deployments
+
+            - uses: actions/checkout@v6
+              with:
+                  repository: kaikodata/kubernetes-deployments
+                  token: ${{ steps.app-token.outputs.token }}
+
+            - name: Open the imageTag bump PR
+              id: pr
+              env:
+                  GH_TOKEN: ${{ steps.app-token.outputs.token }}
+                  TAG: ${{ github.ref_name }}
+              run: |
+                  set -euo pipefail
+
+                  # Same rule as the environment above: the suffix names the environment, and the
+                  # overlay calls the production component `prod`.
+                  case "$TAG" in
+                    *-preprod*) component=preprod ;;
+                    *)          component=prod ;;
+                  esac
+                  overlay=internal/ws-institutional/prd-gke-kaikosvc/values.yaml
+
+                  # Anchored on the `components:` block: `secretsExtra` above it declares entries
+                  # with the very same `- name: preprod` / `- name: prod` keys. The value is
+                  # rewritten in place, quoted and with nothing after it — a trailing comment on
+                  # an imageTag line is what the version-drift tooling trips over.
+                  awk -v c="$component" -v t="$TAG" '
+                    /^  components:/ { in_comp = 1 }
+                    in_comp && !done && $0 ~ "^    - name: " c "$" { found = 1; print; next }
+                    found && /^    - name: / { found = 0 }
+                    found && /^      imageTag:/ { print "      imageTag: \"" t "\""; found = 0; done = 1; next }
+                    { print }
+                  ' "$overlay" > "$overlay.new"
+                  mv "$overlay.new" "$overlay"
+
+                  if git diff --quiet -- "$overlay"; then
+                    echo "::notice::${component} is already on ${TAG}; nothing to bump."
+                    echo "url=" >> "$GITHUB_OUTPUT"
+                    exit 0
+                  fi
+
+                  branch="website/ws-institutional-${TAG}"
+                  git config user.name  "kaiko-website-deploy-bot[bot]"
+                  git config user.email "kaiko-website-deploy-bot[bot]@users.noreply.github.com"
+                  git switch -c "$branch"
+                  git commit -qam "chore: bump ws-institutional ${component} to ${TAG}"
+                  git push -q origin "$branch"
+
+                  # No --reviewer: CODEOWNERS already owns /internal/ws-institutional/ and requests
+                  # the SRE and platform-engineering teams on its own.
+                  body=$(printf '%s\n\n%s\n' \
+                    "Deploys \`gcr.io/kaiko-gcr/spininteractive-institutionalwebsite:${TAG}\` to the ${component} preview of the institutional website." \
+                    "Opened automatically by [the \`release\` workflow](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) after a successful build. Auto-merge is on: it merges as soon as a codeowner approves.")
+
+                  url=$(gh pr create \
+                    --repo kaikodata/kubernetes-deployments \
+                    --base master \
+                    --head "$branch" \
+                    --title "chore: bump ws-institutional ${component} to ${TAG}" \
+                    --body "$body")
+
+                  # Blocked by branch protection until `merge-gate` passes and a codeowner approves.
+                  gh pr merge --repo kaikodata/kubernetes-deployments --auto --rebase "$url"
+                  echo "url=${url}" >> "$GITHUB_OUTPUT"
+
+            # Notify rather than page: the PR is waiting for a human, and nothing tells SRE
+            # otherwise. Skipped when there was nothing to bump.
+            - name: Tell SRE the PR is waiting
+              if: steps.pr.outputs.url != ''
+              env:
+                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+                  # Same webhook, same channel and same mention as the ARC version guard in
+                  # kubernetes-deployments. MUST be the `<!subteam^ID>` form: a webhook payload
+                  # containing a bare `@infra-eng` renders as literal text and notifies nobody
+                  # (`link_names` only ever resolved @user and #channel, never user groups).
+                  SLACK_CHANNEL: '#engineering'
+                  SLACK_MENTION: '<!subteam^S021DL0T64S>'
+                  PR_URL: ${{ steps.pr.outputs.url }}
+                  TAG: ${{ github.ref_name }}
+              run: |
+                  set -euo pipefail
+                  if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then
+                    echo "::warning::SLACK_WEBHOOK is not set on this repository; skipping the notification."
+                    exit 0
+                  fi
+                  text="${SLACK_MENTION} the institutional website has a deploy PR waiting for your approval: <${PR_URL}|ws-institutional ${TAG}>. Auto-merge is on, so approving is all it takes."
+                  jq -n --arg t "$text" --arg c "$SLACK_CHANNEL" \
+                    '{text: $t, channel: $c, username: "Website deploy bot", icon_emoji: ":globe_with_meridians:"}' \
+                    | curl -sS -X POST -H 'Content-type: application/json' --data @- "$SLACK_WEBHOOK_URL"
