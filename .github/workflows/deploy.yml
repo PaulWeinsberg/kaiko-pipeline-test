@@ -1,36 +1,54 @@
 ---
 name: deploy
 
-on: workflow_dispatch
-
-env:
-  SSR_HOST: preview-www.kaiko.com
-  SSR_PROTOCOL: https
-  STATIC_HOST: www.kaiko.com
-  STATIC_PROTOCOL: https
-  API_KEY: -)<X[4J9Y!zxam;S
-  NODE_ENV: production
-  API_URL: https://web-bo-i.kaiko.com/wp-json/spin-api
-  WP_URL: https://web-bo-i.kaiko.com
-  WRANGLER_WORKER_NAME: website-institutional-prod
-  # Media: the backoffice writes and serves from the preview pair, the site from the public
-  # one. The deploy copies the first into the second, and the build rewrites the URLs.
-  MEDIA_PREVIEW_URL: https://web-medias-p.kaiko.com
-  MEDIA_PUBLIC_URL: https://web-medias.kaiko.com
-  MEDIA_PREVIEW_BUCKET: kaikosvc-website-media-preview-prod
-  MEDIA_PUBLIC_BUCKET: kaikosvc-website-media-prod
-  # Resource paths, not credentials: the OIDC token minted for this job is the credential.
-  # The service account may read both buckets and create objects in the public one — it has
-  # no delete right, which is what keeps the sync additive.
-  GCP_WORKLOAD_IDENTITY_PROVIDER: projects/393079965709/locations/global/workloadIdentityPools/github-actions/providers/github-oidc
-  GCP_MEDIA_SYNC_SA: ws-instit-media-sync-prod@prd-kaikosvc-2cb38da6.iam.gserviceaccount.com
+# Marketing's "publish" button: rebuild the bundle, promote the media, push the public site to
+# its Cloudflare worker. Runs on master for both environments — `target` selects which one, and
+# the values come from the matching GitHub Environment instead of from a branch.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Which site to publish
+        type: choice
+        required: true
+        options:
+          - preprod
+          - production
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Binds `vars.*` below to the preprod or production values. Both environments allow only
+    # `master` and tags, so this cannot be run off the legacy preprod branch.
+    environment:
+      name: ${{ inputs.target }}
     permissions:
       contents: read
       id-token: write
+    # Job level, not workflow level: environment variables only resolve once a job has declared
+    # the environment they belong to.
+    env:
+      SSR_HOST: ${{ vars.SSR_HOST }}
+      SSR_PROTOCOL: https
+      STATIC_HOST: ${{ vars.STATIC_HOST }}
+      STATIC_PROTOCOL: https
+      API_KEY: ${{ vars.API_KEY }}
+      NODE_ENV: production
+      API_URL: ${{ vars.API_URL }}
+      WP_URL: ${{ vars.WP_URL }}
+      WRANGLER_WORKER_NAME: ${{ vars.WRANGLER_WORKER_NAME }}
+      # Media: the backoffice writes and serves from the preview pair, the site from the public
+      # one. The deploy copies the first into the second, and the build rewrites the URLs.
+      MEDIA_PREVIEW_URL: ${{ vars.MEDIA_PREVIEW_URL }}
+      MEDIA_PUBLIC_URL: ${{ vars.MEDIA_PUBLIC_URL }}
+      MEDIA_PREVIEW_BUCKET: ${{ vars.MEDIA_PREVIEW_BUCKET }}
+      MEDIA_PUBLIC_BUCKET: ${{ vars.MEDIA_PUBLIC_BUCKET }}
+      # Resource paths, not credentials: the OIDC token minted for this job is the credential.
+      # The service account may read both buckets and create objects in the public one — it has
+      # no delete right, which is what keeps the sync additive. The provider is repository-wide
+      # (one per org), the impersonated account is per environment.
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_MEDIA_SYNC_SA: ${{ vars.GCP_MEDIA_SYNC_SA }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
