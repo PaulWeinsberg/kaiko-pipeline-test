@@ -10,14 +10,27 @@ env:
   STATIC_PROTOCOL: https
   API_KEY: -)<X[4J9Y!zxam;S
   NODE_ENV: production
-  API_UPLOADS_URL: https://web-bo-i.kaiko.com/wp-content/uploads
   API_URL: https://web-bo-i.kaiko.com/wp-json/spin-api
   WP_URL: https://web-bo-i.kaiko.com
   WRANGLER_WORKER_NAME: website-institutional-prod
+  # Media: the backoffice writes and serves from the preview pair, the site from the public
+  # one. The deploy copies the first into the second, and the build rewrites the URLs.
+  MEDIA_PREVIEW_URL: https://web-medias-p.kaiko.com
+  MEDIA_PUBLIC_URL: https://web-medias.kaiko.com
+  MEDIA_PREVIEW_BUCKET: kaikosvc-website-media-preview-prod
+  MEDIA_PUBLIC_BUCKET: kaikosvc-website-media-prod
+  # Resource paths, not credentials: the OIDC token minted for this job is the credential.
+  # The service account may read both buckets and create objects in the public one — it has
+  # no delete right, which is what keeps the sync additive.
+  GCP_WORKLOAD_IDENTITY_PROVIDER: projects/393079965709/locations/global/workloadIdentityPools/github-actions/providers/github-oidc
+  GCP_MEDIA_SYNC_SA: ws-instit-media-sync-prod@prd-kaikosvc-2cb38da6.iam.gserviceaccount.com
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -25,6 +38,23 @@ jobs:
           node-version: lts/jod
       - run: npm install
       - run: npm run cf:build
+
+      # Publish the media the bundle now references, before the bundle itself: the pages
+      # about to go live point at MEDIA_PUBLIC_URL, so the objects have to be there first.
+      # No --delete-unmatched-destination-objects, deliberately — the public bucket only
+      # ever grows, so an older bundle rolled back on the worker still finds its images.
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_MEDIA_SYNC_SA }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Sync the preview media into the public bucket
+        run: |
+          gcloud storage rsync \
+            --recursive \
+            "gs://${MEDIA_PREVIEW_BUCKET}" \
+            "gs://${MEDIA_PUBLIC_BUCKET}"
+
       - run: |
           cat > wrangler.toml << EOF
           name = "${{ env.WRANGLER_WORKER_NAME }}"

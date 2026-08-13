@@ -10,11 +10,12 @@ DOCKER ?= docker run \
 		--tty \
 		--rm \
 		-e"API_KEY" \
-		-e"API_UPLOADS_URL" \
 		-e"API_URL" \
 		-e"GTM_DEBUG" \
 		-e"GTM_ENABLE" \
 		-e"HOME=$(WORKDIR)" \
+		-e"MEDIA_PREVIEW_URL" \
+		-e"MEDIA_PUBLIC_URL" \
 		-e"NODE_ENV" \
 		-e"SSR_HOST" \
 		-e"SSR_PROTOCOL" \
