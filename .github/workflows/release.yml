@@ -25,15 +25,16 @@ jobs:
         # it already did.
         environment:
             name: ${{ contains(github.ref_name, '-preprod') && 'preprod' || 'production' }}
+        # Read-only: the job builds and pushes to gcr.io, it no longer creates a GitHub Release
+        # (release-please owns those). Only `actions/checkout` needs the contents scope.
         permissions:
-            contents: write
+            contents: read
         steps:
             - uses: actions/checkout@v6
             - uses: actions/setup-node@v6
               with:
                   node-version: lts/jod
             - name: release
-              id: release
               run: |
                   export DOCKER_CONFIG="$(mktemp -d)"
                   echo "DOCKER_CONFIG=${DOCKER_CONFIG}" >> "$GITHUB_ENV"
@@ -44,7 +45,6 @@ jobs:
                   VERSION=$(echo ${GITHUB_REF_NAME} | sed 's#/+#-#g')
                   make release VERSION=${VERSION}
                   docker push gcr.io/kaiko-gcr/$APP:$VERSION
-                  echo "::set-output name=binary::${APP}-${VERSION}"
               env:
                   KAIKO_GCR_WRITER: ${{ secrets.KAIKO_GCR_WRITER }}
                   NODE_ENV: prod
@@ -55,11 +55,6 @@ jobs:
                   WP_URL: ${{ vars.WP_URL }}
                   API_URL: ${{ vars.API_URL }}
                   API_KEY: ${{ vars.API_KEY }}
-            - name: Release
-              if: startsWith(github.ref, 'refs/tags/')
-              uses: softprops/action-gh-release@v3
-              with:
-                  files: build/${{ steps.release.outputs.binary }}
             - name: Cleanup docker config
               if: always()
               run: rm -rf "$DOCKER_CONFIG"
