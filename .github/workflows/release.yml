@@ -19,7 +19,7 @@ jobs:
         runs-on: kaiko-arc-small
         # The tag suffix is what selects the environment, and therefore the hostnames baked into
         # the SSR image: `X.Y.Z-preprod.N` is preprod, a bare `X.Y.Z` is production. The two tags
-        # are cut by different things — `release-preprod` on demand for the first, release-please
+        # are cut by different things — `deploy to preview` on demand for the first, release-please
         # on Release-PR merge for the second — but both carry the same X.Y.Z, so the image that
         # goes to production is the same code preprod was validating. Both environments allow
         # `master` and tags only, so a build can no longer be cut from the legacy preprod branch.
