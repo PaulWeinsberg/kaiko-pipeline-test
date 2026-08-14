@@ -1,6 +1,6 @@
 {
     "name": "kaiko-institutional",
-    "version": "3.2.1",
+    "version": "3.3.0",
     "private": true,
     "scripts": {
         "ssr:dev": "nuxt dev --hostname 0.0.0.0 -c ssr.nuxt.config.js",
