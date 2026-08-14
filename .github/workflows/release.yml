@@ -152,25 +152,32 @@ jobs:
 
             # Notify rather than page: the PR is waiting for a human, and nothing tells SRE
             # otherwise. Skipped when there was nothing to bump.
+            #
+            # No group ping. #sre-pull-requests already carries every SRE pull request, so the
+            # people who approve this one are in the channel by definition; a `<!subteam^ID>` on
+            # top of that would be a second notification for something they are already watching.
             - name: Tell SRE the PR is waiting
               if: steps.pr.outputs.url != ''
               env:
-                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-                  # Same webhook, same channel and same mention as the ARC version guard in
-                  # kubernetes-deployments. MUST be the `<!subteam^ID>` form: a webhook payload
-                  # containing a bare `@infra-eng` renders as literal text and notifies nobody
-                  # (`link_names` only ever resolved @user and #channel, never user groups).
-                  SLACK_CHANNEL: '#engineering'
-                  SLACK_MENTION: '<!subteam^S021DL0T64S>'
+                  # Its own webhook, bound to #sre-pull-requests when it was created, rather than
+                  # the org-wide SLACK_WEBHOOK. The destination is a property of the WEBHOOK here,
+                  # not of the payload: a Slack app incoming webhook can only post to the single
+                  # channel it was installed on, and silently ignores a `channel` field. That is
+                  # the reason for a separate secret — the shared one is a legacy integration and
+                  # posts wherever the payload asks it to, which is more than this job needs.
+                  #
+                  # Same reason there is no `username`/`icon_emoji` override below: those need the
+                  # `chat:write.customize` scope, which this app deliberately does not have. The
+                  # message shows the app's own name and icon, set once at creation.
+                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_SRE_PRS }}
                   PR_URL: ${{ steps.pr.outputs.url }}
                   TAG: ${{ github.ref_name }}
               run: |
                   set -euo pipefail
                   if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then
-                    echo "::warning::SLACK_WEBHOOK is not set on this repository; skipping the notification."
+                    echo "::warning::SLACK_WEBHOOK_SRE_PRS is not set on this repository; skipping the notification."
                     exit 0
                   fi
-                  text="${SLACK_MENTION} the institutional website has a deploy PR waiting for your approval: <${PR_URL}|ws-institutional ${TAG}>. Auto-merge is on, so approving is all it takes."
-                  jq -n --arg t "$text" --arg c "$SLACK_CHANNEL" \
-                    '{text: $t, channel: $c, username: "Website deploy bot", icon_emoji: ":globe_with_meridians:"}' \
+                  text="The institutional website has a deploy PR waiting for approval: <${PR_URL}|ws-institutional ${TAG}>. Auto-merge is on, so approving is all it takes."
+                  jq -n --arg t "$text" '{text: $t}' \
                     | curl -sS -X POST -H 'Content-type: application/json' --data @- "$SLACK_WEBHOOK_URL"
