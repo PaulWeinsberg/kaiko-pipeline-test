@@ -132,7 +132,21 @@ jobs:
               # Merging the Release PR is what makes the version real: release-please then creates
               # the bare `X.Y.Z` tag, which `release` turns into the production image. Rebase, not
               # merge commit — merge commits are disabled on this repository (SRE-1570).
-              gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --rebase
+              #
+              # release-please keeps that PR as a draft (`draft-pull-request` in
+              # release-please-config.json), which greys out the merge button in the UI: the gate
+              # just above is the only way to production, and a draft cannot be merged past it by
+              # someone reading the CHANGELOG. Undrafting is therefore part of merging, and belongs
+              # here rather than in a human's hands. The App token carries `pull-requests: write`
+              # at the App level — the `permissions:` block above only governs GITHUB_TOKEN.
+              gh pr ready "$pr_number" --repo "$GITHUB_REPOSITORY"
+
+              # Back to draft if the merge does not go through — a failed merge that left the PR
+              # ready would hand back the very button this gate exists to remove.
+              gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --rebase || {
+                gh pr ready "$pr_number" --repo "$GITHUB_REPOSITORY" --undo || true
+                fail "Release PR #${pr_number} could not be merged (checks, conflicts or branch protection). Nothing was released; the PR is back to draft."
+              }
 
               {
                 echo "### Releasing ${version} to the production preview"
