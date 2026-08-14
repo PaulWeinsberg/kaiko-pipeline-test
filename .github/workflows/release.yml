@@ -77,6 +77,11 @@ jobs:
         # version — only real tags get a PR.
         if: startsWith(github.ref, 'refs/tags/')
         runs-on: ubuntu-latest
+        # For the changelog below: the App token is scoped to kubernetes-deployments and cannot
+        # read this repository, so the commit list is fetched with the default GITHUB_TOKEN, which
+        # only ever needs to read the repository it runs in.
+        permissions:
+            contents: read
         steps:
             - uses: actions/create-github-app-token@v3
               id: app-token
@@ -95,6 +100,8 @@ jobs:
               id: pr
               env:
                   GH_TOKEN: ${{ steps.app-token.outputs.token }}
+                  # Reads this repository, not kubernetes-deployments — see the job permissions.
+                  SELF_TOKEN: ${{ github.token }}
                   TAG: ${{ github.ref_name }}
               run: |
                   set -euo pipefail
@@ -106,6 +113,18 @@ jobs:
                     *)          component=prod ;;
                   esac
                   overlay=internal/ws-institutional/prd-gke-kaikosvc/values.yaml
+
+                  # What the component runs TODAY, read before the rewrite below overwrites it.
+                  # This, not the version number, is what the changelog is computed against: an
+                  # approver is being asked about the difference between what is deployed and what
+                  # is proposed, which on a second preprod iteration is a handful of commits and
+                  # not the whole X.Y.Z release notes.
+                  previous=$(awk -v c="$component" '
+                    /^  components:/ { in_comp = 1 }
+                    in_comp && $0 ~ "^    - name: " c "$" { found = 1; next }
+                    found && /^    - name: / { found = 0 }
+                    found && /^      imageTag:/ { v = $2; gsub(/"/, "", v); print v; exit }
+                  ' "$overlay")
 
                   # Anchored on the `components:` block: `secretsExtra` above it declares entries
                   # with the very same `- name: preprod` / `- name: prod` keys. The value is
@@ -133,18 +152,59 @@ jobs:
                   git commit -qam "chore: bump ws-institutional ${component} to ${TAG}"
                   git push -q origin "$branch"
 
+                  # What an approver is actually being asked to approve. Without it the PR is a
+                  # one-line version bump with no way to tell a typo fix from a rewrite of the
+                  # rendering, and the only honest answer to "should I merge this?" is to go and
+                  # read the tags by hand.
+                  #
+                  # Best effort, never fatal: `previous` may be a tag that no longer exists, or one
+                  # with no common ancestor (the repository predates this workflow by four years of
+                  # hand-cut tags). A missing changelog must not stop a deployment, so every failure
+                  # degrades to the compare link and the PR is opened regardless.
+                  compare=$(GH_TOKEN="$SELF_TOKEN" gh api \
+                    "repos/${GITHUB_REPOSITORY}/compare/${previous}...${TAG}" 2>/dev/null || true)
+
+                  # A failed `gh api` still prints the error body on stdout, and `set -o pipefail`
+                  # would then turn a jq parse error into a failed step AFTER the branch was pushed.
+                  # Anything that is not a compare payload is treated as no changelog at all.
+                  printf '%s' "$compare" | jq -e 'has("total_commits")' >/dev/null 2>&1 || compare=""
+
+                  {
+                    echo "Deploys \`gcr.io/kaiko-gcr/spininteractive-institutionalwebsite:${TAG}\` to the ${component} preview of the institutional website."
+                    echo
+
+                    if [ -n "$previous" ]; then
+                      echo "It replaces \`${previous}\`, which is what the ${component} preview runs right now."
+                      echo
+                    fi
+
+                    if [ -n "$compare" ]; then
+                      # `.commits` is oldest-first and capped at 250 by the API; `.total_commits`
+                      # is the real count, so a truncated list says so instead of quietly lying.
+                      total=$(printf '%s' "$compare" | jq -r '.total_commits')
+                      printf '%s' "$compare" | jq -r '.commits | reverse | .[:40] | .[] | "- \(.commit.message | split("\n")[0]) (`\(.sha[0:7])`)"'
+                      echo
+                      if [ "${total:-0}" -gt 40 ]; then
+                        echo "_… and $(( total - 40 )) more._"
+                        echo
+                      fi
+                      echo "[Full diff](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${previous}...${TAG})"
+                    elif [ -n "$previous" ]; then
+                      echo "The commit list could not be resolved — \`${previous}\` may no longer exist, or share no history with \`${TAG}\`. [Compare them here](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${previous}...${TAG})."
+                    fi
+
+                    echo
+                    echo "Opened automatically by [the \`release\` workflow](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) after a successful build. Auto-merge is on: it merges as soon as a codeowner approves."
+                  } > "${RUNNER_TEMP}/kub-pr-body.md"
+
                   # No --reviewer: CODEOWNERS already owns /internal/ws-institutional/ and requests
                   # the SRE and platform-engineering teams on its own.
-                  body=$(printf '%s\n\n%s\n' \
-                    "Deploys \`gcr.io/kaiko-gcr/spininteractive-institutionalwebsite:${TAG}\` to the ${component} preview of the institutional website." \
-                    "Opened automatically by [the \`release\` workflow](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) after a successful build. Auto-merge is on: it merges as soon as a codeowner approves.")
-
                   url=$(gh pr create \
                     --repo kaikodata/kubernetes-deployments \
                     --base master \
                     --head "$branch" \
                     --title "chore: bump ws-institutional ${component} to ${TAG}" \
-                    --body "$body")
+                    --body-file "${RUNNER_TEMP}/kub-pr-body.md")
 
                   # Blocked by branch protection until `merge-gate` passes and a codeowner approves.
                   gh pr merge --repo kaikodata/kubernetes-deployments --auto --rebase "$url"
