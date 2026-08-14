@@ -169,7 +169,22 @@ jobs:
                   # Anything that is not a compare payload is treated as no changelog at all.
                   printf '%s' "$compare" | jq -e 'has("total_commits")' >/dev/null 2>&1 || compare=""
 
+                  # Which environment, said once and loudly, at the top. `preprod` and `prod` differ
+                  # by two characters in the title and are read at a glance in a channel full of
+                  # bump PRs; the criticality of an approval must not hang on that. GitHub renders
+                  # these as a coloured callout, so the two are told apart before reading a word.
                   {
+                    if [ "$component" = preprod ]; then
+                      echo "> [!NOTE]"
+                      echo "> ## PREPROD"
+                      echo "> Deploys to \`preview-www.kaiko.ovh\`, where marketing validates. No public traffic reaches it."
+                    else
+                      echo "> [!CAUTION]"
+                      echo "> ## PRODUCTION"
+                      echo "> Deploys to \`preview-www.kaiko.com\`. The public site \`www.kaiko.com\` is static and stays on its current bundle until someone runs **deploy to static** — but this is the code that publication will then export."
+                    fi
+                    echo
+
                     echo "Deploys \`gcr.io/kaiko-gcr/spininteractive-institutionalwebsite:${TAG}\` to the ${component} preview of the institutional website."
                     echo
 
@@ -209,6 +224,7 @@ jobs:
                   # Blocked by branch protection until `merge-gate` passes and a codeowner approves.
                   gh pr merge --repo kaikodata/kubernetes-deployments --auto --rebase "$url"
                   echo "url=${url}" >> "$GITHUB_OUTPUT"
+                  echo "component=${component}" >> "$GITHUB_OUTPUT"
 
             # Notify rather than page: the PR is waiting for a human, and nothing tells SRE
             # otherwise. Skipped when there was nothing to bump.
@@ -231,6 +247,7 @@ jobs:
                   # message shows the app's own name and icon, set once at creation.
                   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_SRE_PRS }}
                   PR_URL: ${{ steps.pr.outputs.url }}
+                  COMPONENT: ${{ steps.pr.outputs.component }}
                   TAG: ${{ github.ref_name }}
               run: |
                   set -euo pipefail
@@ -238,6 +255,12 @@ jobs:
                     echo "::warning::SLACK_WEBHOOK_SRE_PRS is not set on this repository; skipping the notification."
                     exit 0
                   fi
-                  text="The institutional website has a deploy PR waiting for approval: <${PR_URL}|ws-institutional ${TAG}>. Auto-merge is on, so approving is all it takes."
+                  # Environment first, in bold: the channel carries both, and `prod` and
+                  # `preprod` are two characters apart in a tag read at a glance.
+                  case "$COMPONENT" in
+                    preprod) env_label="PREPROD" ;;
+                    *)       env_label="PRODUCTION" ;;
+                  esac
+                  text="*${env_label}* — the institutional website has a deploy PR waiting for approval: <${PR_URL}|ws-institutional ${TAG}>. Auto-merge is on, so approving is all it takes."
                   jq -n --arg t "$text" '{text: $t}' \
                     | curl -sS -X POST -H 'Content-type: application/json' --data @- "$SLACK_WEBHOOK_URL"
