@@ -1,6 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "draft-pull-request": true,
+  "include-v-in-tag": false,
+  "include-component-in-tag": false,
   "pull-request-header": "> [!WARNING]\n> **Do not merge this pull request by hand.**\n>\n> Merging it creates the `X.Y.Z` tag, and therefore the production image, without the check that this exact code ran on `preview-www.kaiko.ovh` first. It is kept as a draft so that the merge button stays disabled.\n>\n> The **\"Synchronize frontend codebase on preview\" → production** button in the WordPress back-office is what merges it: it verifies that `master` HEAD is the very commit a preprod tag points at, marks this pull request ready, and merges it. Deploy to the preprod preview first, validate there, then use that button.\n>\n> Read it as the changelog of what is about to be released.",
   "packages": {
     ".": {
